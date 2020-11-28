@@ -90,3 +90,5 @@ This bot was ported from an old Matrix bot library, and some of the things that 
 - XSS and fuzz commands - They keep being interpreted due to how we send output now (custom_html). The solution might be to just have supplementary data from a command that marks how it's output should be formatted, or just not have xss and fuzz commands.
 - File Uploads - This changed in the new library, and hasn't yet been implemented.
 - Other CI/CD - This was part of the original Ai bot, but it hasn't been put into this version yet.
+- Joining Rooms - Ai can't join rooms on her own right now, so this functionality needs to be implemented
+- Other moderation commands - Kick / Ban users from a room or list of rooms if Ai is a mod.
