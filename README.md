@@ -8,7 +8,7 @@ Ai Amano is a matrix bot that has been running on various Matrix servers since a
 
 Install requirements.txt, then decide if you want to use matrix-nio with end to end encryption support (for DMs) or not. Install matrix-nio according to the instructions [here](https://github.com/poljar/matrix-nio). There have historically been issues with libolm, but it might be better now? Idk I literally compiled the shared object from scratch and have been using it on vms I deploy because it was ridiculous at first :D
 
-For now, run matrix-commander.py to generate your credentials.json file. This is what is used for authentication across sessions and allows your bot to start up faster.
+For now, run tokenstore.py to generate your credentials.json file. This is what is used for authentication across sessions and allows your bot to start up faster.
 
 ### API Keys
 
@@ -20,7 +20,7 @@ Some command output may be really large, so we've setup a way to post the output
 
 ### Other Config
 
-You don't need to set up the server/username/password secrets in secrets.yml, as we are using matrix-commander for auth until a nicer scheme is developed :)
+You don't need to set up the server/username/password secrets in secrets.yml, as we are using tokenstore.py for auth until a nicer scheme is developed :)
 
 ### Running Ai
 
@@ -85,7 +85,7 @@ You can add your command like this:
 
 This bot was ported from an old Matrix bot library, and some of the things that were redesigned have broken a small amount of functionality which is logged here.
 
-- Auth - Using matrix-commander.py now, but this login functionality and key checking can be implemented easily within ai.py or something...
+- Auth - Using tokenstore.py now, but this login functionality and key checking can be implemented easily within ai.py or something...
 - Logging. In core/helper.py, all it does right now is print something, could possibly use a small sqlite db or something to have logs, but couldn't decide.
 - XSS and fuzz commands - They keep being interpreted due to how we send output now (custom_html). The solution might be to just have supplementary data from a command that marks how it's output should be formatted, or just not have xss and fuzz commands.
 - File Uploads - This changed in the new library, and hasn't yet been implemented.
