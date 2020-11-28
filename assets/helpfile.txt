@@ -1,0 +1,47 @@
+<h1>┤ AI │ Help Menu ├</h1><pre><code>>>> General Commands
++---------------------------+--------------------------------------------------+
+| !8ball                    | Consult the great oracle                         |
+| !arch                     | Get a guide on installing Arch Linux             |
+| !cc [coin]                | Get USD crypto price for a given coin.           |
+| !insult                   | Get an incredibly corny insult                   |
+| !help                     | This menu                                        |
+| !skrt                     | Ping me!                                         |
+| !stressed                 | Get a tip on what to do if you are stressed.     |
+| !ud [search string]       | Look up a term on Urban Diction (audio included) |
+| !yt [search string]       | Look up a Youtube video                          |
++---------------------------+--------------------------------------------------+
+>>> Community                                                                   
++---------------------------+--------------------------------------------------+
+| !news add [link]          | Add a news item for the show                     |
++---------------------------+--------------------------------------------------+
+>>> Cryptography                                                                
++---------------------------+--------------------------------------------------+
+| !hashid [hash]            | Identify possible hash types                     |
++---------------------------+--------------------------------------------------+
+>>> Exploit                                                                  
++---------------------------+--------------------------------------------------+
+| !cve CVE-ID               | Return public exploits for a given CVE           |
+| !fuzz                     | Get a fuzzing string                             |
+| !reversi [IP] [PORT]      | Generate Linux 64 bit one liner reverse shell    |
+| !xss                      | Get an XSS payload                               |
++---------------------------+--------------------------------------------------+
+>>> Network Tools                                                               
++---------------------------+--------------------------------------------------+
+| !bgp ASXXX                | Get info on your favorite ASNs!                  |
+| !bssid XX:XX:XX:XX:XX:XX  | Look up a BSSID                                  |
+| !dnsd [domain]            | Get DNS info + a network map for a given domain  |
+| !ip [ip address]          | Look up an IP address                            |
+| !mac [mac address]        | Get vendor for a given mac address               |
+| !prefix X.X.X.X/X         | Look up an IP Prefix / CIDR Block                |
+| !shodan [IP]              | Search shodan for an IP                          |
+| !head [domain]            | Grab headers from a domain                       |
++---------------------------+--------------------------------------------------+
+>>> OSINT                                                                       
++---------------------------+--------------------------------------------------+
+| !cid [number]             | Look up number on Twilio API                     |
+| !dg [URL]                 | Transform Google Search URL to regular URL       |
+| !fakeid                   | Return a bunch of fake info about a person       |
+| !gs [search term]         | Search Google                                    |
+| !vt [HASH]                | Search an MD5, SHA1 or SHA256 hash on VirusTotal |
++---------------------------+--------------------------------------------------+
+</code></pre>
