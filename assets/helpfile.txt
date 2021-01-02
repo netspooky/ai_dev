@@ -9,6 +9,7 @@
 | !stressed                 | Get a tip on what to do if you are stressed.     |
 | !ud [search string]       | Look up a term on Urban Diction (audio included) |
 | !yt [search string]       | Look up a Youtube video                          |
+| !inspire                  | Get an image from inspirobot.me                  |
 +---------------------------+--------------------------------------------------+
 >>> Community                                                                   
 +---------------------------+--------------------------------------------------+

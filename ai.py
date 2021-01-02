@@ -61,6 +61,7 @@ cmdDict = { "!brokencommand": core.helper.getTime, # Broken?
             "!skrt": core.generic.skrtCB,
             "!stressed": core.generic.stressedCB,
             "!cc": core.generic.cryptoCB,
+            "!inspire": core.media.inspire,
             ### Exploit Commands
             "!xss": core.exploit.getXSS,
             "!fuzz": core.exploit.getFuzz,
@@ -109,17 +110,18 @@ async def msgListener(room, event):
             cmd = msg[0]
             if cmd in cmdDict.keys():
                 print(msg)
-                botResponse = cmdDict[cmd](room, event)
-                await tBot.client.room_send(
-                    room_id=room.room_id,
-                    message_type="m.room.message",
-                    content={
-                        "msgtype": "m.text",
-                        "format": "org.matrix.custom.html",
-                        "body": botResponse,
-                        "formatted_body": botResponse
-                    }
-                )
+                botResponse = await cmdDict[cmd](room, event)
+                if botResponse != 0:
+                    await tBot.client.room_send(
+                        room_id=room.room_id,
+                        message_type="m.room.message",
+                        content={
+                            "msgtype": "m.text",
+                            "format": "org.matrix.custom.html",
+                            "body": botResponse,
+                            "formatted_body": botResponse
+                        }
+                    )   
 
 async def main():
     tBot.client.add_event_callback(msgListener, RoomMessageText)

@@ -23,6 +23,15 @@ import re
 import socket
 import yaml
 
+import os
+import magic
+import shutil
+import aiofiles.os
+from PIL import Image
+
+from nio import (Api, AsyncClient, MatrixRoom, RoomMessageText, UploadResponse)
+CONFIG_FILE="../credentials.json"
+
 ### ANSI Colors ###
 cBLK  = "\033[1;30m"
 cRED  = "\033[38;5;124m"
@@ -80,6 +89,20 @@ BANNER = """
 (####(##/##   .....                            .//*((((((.     (((\033[38;5;219m/\\/\\/\\/\\/\\/[]\033[0m
 """
 
+class helperBot:
+    def __init__(self):
+        print(BANNER)
+        print("Authenticating...")
+        with open(CONFIG_FILE, "r") as f:
+            config = json.load(f)
+            self.client = AsyncClient(config['homeserver'])
+            self.client.access_token = config['access_token']
+            self.client.user_id = config['user_id']
+            self.client.device_id = config['device_id']
+
+### The client object
+hBot = helperBot()
+
 def loadYML(infile):
   with open(infile,'r') as stream:
     try:
@@ -87,24 +110,6 @@ def loadYML(infile):
     except yaml.YAMLError as exc:
       print(exc)
   return data
-
-# Global 
-SECRETS  = loadYML('secrets.yml') # Disabled to test
-#USERNAME = SECRETS["secrets"]["username"]
-#PASSWORD = SECRETS["secrets"]["password"]
-#SERVER   = SECRETS["secrets"]["server"] 
-
-startTime = ""
-
-def botInit():
-    global startTime
-    print(BANNER)
-    startTime = 'Start: {:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
-    print("[+] {}".format(startTime))
-    print("[+] Setting up...")
-    print("[+] Connecting as "+cPNK+"@"+USERNAME+":"+SERVER[8:]+e)
-    initbot = MatrixBotAPI(USERNAME, PASSWORD, SERVER)
-    return initbot
 
 # Use these to wrap the send_html output!
 fmt1 = "<pre><code>"
@@ -184,3 +189,53 @@ def aiLog(event):
 def crashLog(event,eLog):
     tstamp = getTime()
     print("Crashed at {}: {}".format(tstamp, eLog))
+
+### modified send_file.py example code, should be cleaned up ###
+async def send_image(room, image):
+
+    client = hBot.client
+
+    mime_type = magic.from_file(image, mime=True)  # e.g. "image/jpeg"
+    if not mime_type.startswith("image/"):
+        print("Drop message because file does not have an image mime type.")
+        return
+
+    im = Image.open(image)
+    (width, height) = im.size  # im.size returns (width,height) tuple
+
+    # first do an upload of image, then send URI of upload to room
+    file_stat = await aiofiles.os.stat(image)
+    async with aiofiles.open(image, "r+b") as f:
+        resp, maybe_keys = await client.upload(
+            f,
+            content_type=mime_type,  # image/jpeg
+            filename=os.path.basename(image),
+            filesize=file_stat.st_size)
+    if (isinstance(resp, UploadResponse)):
+        print("Image was uploaded successfully to server. ")
+    else:
+        print(f"Failed to upload image. Failure response: {resp}")
+
+    content = {
+        "body": os.path.basename(image),  # descriptive title
+        "info": {
+            "size": file_stat.st_size,
+            "mimetype": mime_type,
+            "thumbnail_info": None,  # TODO
+            "w": width,  # width in pixel
+            "h": height,  # height in pixel
+            "thumbnail_url": None,  # TODO
+        },
+        "msgtype": "m.image",
+        "url": resp.content_uri,
+    }
+
+    try:
+        await client.room_send(
+            room.room_id,
+            message_type="m.room.message",
+            content=content
+        )
+        print("Image was sent successfully")
+    except Exception as e:
+        print(f"Image send of file {image} failed: {e}")
