@@ -30,7 +30,7 @@ import aiofiles.os
 from PIL import Image
 
 from nio import (Api, AsyncClient, MatrixRoom, RoomMessageText, UploadResponse)
-CONFIG_FILE="../credentials.json"
+CONFIG_FILE="./credentials.json"
 
 ### ANSI Colors ###
 cBLK  = "\033[1;30m"
@@ -91,8 +91,8 @@ BANNER = """
 
 class helperBot:
     def __init__(self):
-        print(BANNER)
-        print("Authenticating...")
+        #print(BANNER)
+        #print("Authenticating...")
         with open(CONFIG_FILE, "r") as f:
             config = json.load(f)
             self.client = AsyncClient(config['homeserver'])

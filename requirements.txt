@@ -1,3 +1,4 @@
 shodan
 dnsdumpster
 greynoise
+python-magic
