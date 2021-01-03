@@ -10,36 +10,36 @@ import json
 import re 
 from urllib.request import urlopen
 
-def helpCB(room, event):
+async def helpCB(room, event):
     aiLog(event)
     helpFile = readFile('assets/helpfile.txt')
     return helpFile
 
-def testCB(room,event):
+async def testCB(room,event):
     aiLog(event)
     return "Test Success!"
 
-def archCB(room, event):
+async def archCB(room, event):
     aiLog(event)
     s = event.sender
     out = "Hey {}, use this guide! https://gist.github.com/netspooky/cad9a183daf3dfcbc677221ff452c15b".format(s)
     return out
 
-def ballCB(room, event):
+async def ballCB(room, event):
     aiLog(event)
     ball   = getLine("assets/8ball.txt")
     return ball
 
-def skrtCB(room, event):
+async def skrtCB(room, event):
     aiLog(event)
     return "This message requires Matrix Gold to view"
 
-def stressedCB(room, event):
+async def stressedCB(room, event):
     aiLog(event)
     dStressTip = getLine("assets/stressed.txt")
     return dStressTip
 
-def cryptoCB(room,event):
+async def cryptoCB(room,event):
     args = event.body.split()
     coin  = args[1]
     if len(coin) > 4:
