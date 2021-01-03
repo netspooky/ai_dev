@@ -11,10 +11,10 @@ async def cidSearch(room, event):
     await aiLog(event)
     args = event.body.split()
     initialNum    = args[1]
-    phonenumber   = getDigits(initialNum)
+    phonenumber   = await getDigits(initialNum)
 
     # This is an easier way of accessing this api which was used in Wish
-    SECRETS = await loadYML('secrets.yml')
+    #SECRETS = await loadYML('secrets.yml')
     api_key = SECRETS["keys"]["twilio"]
     if len(api_key) == 0:
         return "Please set up a Twilio API key!"
@@ -248,7 +248,7 @@ async def fakeID(room, event):
     return output
 
 async def vtSearch(room, event):
-    SECRETS = await loadYML('secrets.yml')
+    #SECRETS = await loadYML('secrets.yml')
     vtApiKey = SECRETS["keys"]["virus_total"]
     if len(vtApiKey) == 0:
         return "Please set up a Virus Total API key!"

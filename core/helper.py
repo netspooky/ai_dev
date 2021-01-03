@@ -103,7 +103,7 @@ class helperBot:
 ### The client object
 hBot = helperBot()
 
-async def loadYML(infile):
+def loadYML(infile):
   with open(infile,'r') as stream:
     try:
       data = yaml.safe_load(stream)
