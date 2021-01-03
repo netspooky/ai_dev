@@ -12,7 +12,7 @@ from urllib.request import urlopen
 
 async def helpCB(room, event):
     await aiLog(event)
-    helpFile = readFile('assets/helpfile.txt')
+    helpFile = await readFile('assets/helpfile.txt')
     return helpFile
 
 async def testCB(room,event):
@@ -27,7 +27,7 @@ async def archCB(room, event):
 
 async def ballCB(room, event):
     await aiLog(event)
-    ball = getLine("assets/8ball.txt")
+    ball = await getLine("assets/8ball.txt")
     return ball
 
 async def skrtCB(room, event):

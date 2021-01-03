@@ -3,26 +3,19 @@
 | !8ball                    | Consult the great oracle                         |
 | !arch                     | Get a guide on installing Arch Linux             |
 | !cc [coin]                | Get USD crypto price for a given coin.           |
-| !insult                   | Get an incredibly corny insult                   |
+| !inspire                  | Get an image from inspirobot.me                  |
+| !insult                   | Get an incredibly corny insult [ broken :( ]     |
 | !help                     | This menu                                        |
 | !skrt                     | Ping me!                                         |
 | !stressed                 | Get a tip on what to do if you are stressed.     |
-| !ud [search string]       | Look up a term on Urban Diction (audio included) |
+| !ud [search string]       | Look up a term on Urban Dictionary               |
 | !yt [search string]       | Look up a Youtube video                          |
-| !inspire                  | Get an image from inspirobot.me                  |
-+---------------------------+--------------------------------------------------+
->>> Community                                                                   
-+---------------------------+--------------------------------------------------+
-| !news add [link]          | Add a news item for the show                     |
-+---------------------------+--------------------------------------------------+
->>> Cryptography                                                                
-+---------------------------+--------------------------------------------------+
-| !hashid [hash]            | Identify possible hash types                     |
 +---------------------------+--------------------------------------------------+
 >>> Exploit                                                                  
 +---------------------------+--------------------------------------------------+
 | !cve CVE-ID               | Return public exploits for a given CVE           |
 | !fuzz                     | Get a fuzzing string                             |
+| !hashid [hash]            | Identify possible hash types                     |
 | !reversi [IP] [PORT]      | Generate Linux 64 bit one liner reverse shell    |
 | !xss                      | Get an XSS payload                               |
 +---------------------------+--------------------------------------------------+
@@ -31,6 +24,7 @@
 | !bgp ASXXX                | Get info on your favorite ASNs!                  |
 | !bssid XX:XX:XX:XX:XX:XX  | Look up a BSSID                                  |
 | !dnsd [domain]            | Get DNS info + a network map for a given domain  |
+| !gn [ip address]          | Search Greynoise for an IP                       |
 | !ip [ip address]          | Look up an IP address                            |
 | !mac [mac address]        | Get vendor for a given mac address               |
 | !prefix X.X.X.X/X         | Look up an IP Prefix / CIDR Block                |

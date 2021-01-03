@@ -499,7 +499,7 @@ async def headerGrab(room,event):
     await crashLog(event,aiEx)
     return "<pre><code>No Response!</code></pre>"
 
-async def await resolver(host_name):
+async def resolver(host_name):
   host_ip = socket.gethostbyname(host_name) 
   return host_ip
 
