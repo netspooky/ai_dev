@@ -21,7 +21,7 @@ try:
 except ImportError:
     from helper import *
 
-def secTrails(room,event):
+async def secTrails(room,event):
     aiLog(event)
     args = event.body.split()
     domain = args[1]
@@ -75,7 +75,7 @@ def secTrails(room,event):
     except:
       return "Something broke! (Probably the API key is exhausted)"
 
-def ipinfo(room, event):
+async def ipinfo(room, event):
     aiLog(event)
     args = event.body.split()
     ip  = args[1]
@@ -102,7 +102,7 @@ def ipinfo(room, event):
     return '<h3>IP: {}</h3> {}'.format(ip,ipOut)
 
 #-> !bssid XX:XX:XX:XX:XX:XX
-def bssid_lookup(room, event):
+async def bssid_lookup(room, event):
     aiLog(event)
     args = event.body.split()
     if len(args) <= 1 or args[1] == '-h':
@@ -186,7 +186,7 @@ Google Maps: {}
         else:
             return "Nice Try"
 
-def dnsdumpster(room, event):
+async def dnsdumpster(room, event):
     try:
       aiLog(event)
       args = event.body.split()
@@ -225,7 +225,7 @@ def dnsdumpster(room, event):
     #except Exception as aiEx:
     #    crashLog(event,aiEx)
 
-def bgpViewASN(room,event):
+async def bgpViewASN(room,event):
   aiLog(event)
   args = event.body.split()
   try:
@@ -296,7 +296,7 @@ def bgpViewASN(room,event):
   except Exception as aiEx:
     crashLog(event,aiEx)
 
-def bgpViewPrefix(room,event):
+async def bgpViewPrefix(room,event):
   aiLog(event)
   args = event.body.split()
   prefix = args[1]
@@ -325,7 +325,7 @@ def bgpViewPrefix(room,event):
   except Exception as aiEx:
     crashLog(event,aiEx)
 
-def getMACVendor(room,event):
+async def getMACVendor(room,event):
   aiLog(event)
   args = event.body.split()
   try:
@@ -340,12 +340,12 @@ def getMACVendor(room,event):
   except Exception as aiEx:
     crashLog(event,aiEx)
 
-def shodanGetIP(banner):
+async def shodanGetIP(banner):
     if 'ipv6' in banner:
         return banner['ipv6']
     return banner['ip_str']
 
-def shodanSearch(room,event):
+async def shodanSearch(room,event):
   # Show the host information in a user-friendly way and try to include
   # as much relevant information as possible.
   try:
@@ -469,7 +469,7 @@ def shodanSearch(room,event):
   except Exception as aiEx:
     crashLog(event,aiEx)
 
-def headerGrab(room,event):
+async def headerGrab(room,event):
   try:
     aiLog(event)
     args = event.body.split()
@@ -499,11 +499,11 @@ def headerGrab(room,event):
     crashLog(event,aiEx)
     return "<pre><code>No Response!</code></pre>"
 
-def resolver(host_name):
+async def resolver(host_name):
   host_ip = socket.gethostbyname(host_name) 
   return host_ip
 
-def resolveHost(room,event):
+async def resolveHost(room,event):
   try:
     aiLog(event)
     args = event.body.split()
@@ -514,7 +514,7 @@ def resolveHost(room,event):
     crashLog(event,aiEx)
     return "<pre><code>Couldn't resolve IP!</code></pre>"
 
-def gn(ip):
+async def gn(ip):
   gnapi = GreyNoise()
   noise = gnapi.ip(ip)
   gnOut = ""
@@ -540,7 +540,7 @@ def gn(ip):
     gnOut = "No results :("
   return gnOut
 
-def gnWrapper(room,event):
+async def gnWrapper(room,event):
   try:
     aiLog(event)
     args = event.body.split()

@@ -103,7 +103,7 @@ class helperBot:
 ### The client object
 hBot = helperBot()
 
-def loadYML(infile):
+async def loadYML(infile):
   with open(infile,'r') as stream:
     try:
       data = yaml.safe_load(stream)
@@ -111,18 +111,20 @@ def loadYML(infile):
       print(exc)
   return data
 
+SECRETS = loadYML('./secrets.yml')
+
 # Use these to wrap the send_html output!
 fmt1 = "<pre><code>"
 fmt2 = "</code></pre>"
 
 ### Returns current timestamp
-def getTime():
+async def getTime():
     now = datetime.datetime.now()
     tstamp = now.strftime("%Y-%m-%d %H:%M:%S")
     return tstamp
 
 ### verify that a link is a valid google search url - needed for osint/degoogler function
-def verify_google(url):
+async def verify_google(url):
     find_match = re.match('^(https?://)?(www\.)?(google\.[a-z]{2,3}(\.[a-z]{2})?)/url', url)
     if find_match:
         for match in find_match.groups():
@@ -136,19 +138,19 @@ def verify_google(url):
 
 # TODO: add a bot command to just return a google link based on specified query rather than actually running query
 # return a valid google search url for a query
-def make_google_link(query):
+async def make_google_link(query):
     normalized_query = re.sub(r' |%20', '+', query)
     normalized_query = re.sub(r'\"', '%22', normalized_query)
     url = "https://google.com/search?q=%s" % normalized_query
     return url
 
 ### This is a general command wrapper for only getting digits from a given string
-def getDigits(someText):
+async def getDigits(someText):
     cleaned = re.sub("\D", "", someText)
     return cleaned
 
 ### Check if an IP is valid
-def valid_ip(address):
+async def valid_ip(address):
     try: 
         socket.inet_aton(address)
         return True
@@ -161,7 +163,7 @@ def valid_ip(address):
 nayList = ["(￣。￣)","(￣ー￣)","(︶︹︺)","(◕ ︵ ◕)","(´◉◞౪◟◉)"]
 yayList = ["\\(◕ ◡ ◕\\)","(◕‿◕✿)","(≧ω≦)","(´・ω・｀)",]
 
-def getFace(mood):
+async def getFace(mood):
     if mood == "yay":
         mood = random.choice(yayList)
     if mood == "nay":
@@ -169,24 +171,24 @@ def getFace(mood):
     return mood
 
 ### Handler for all commands that return a random line from a file
-def getLine(file):
+async def getLine(file):
     with open(file,"r") as f:
         lines = f.readlines()
         line  = random.choice(lines)
     return line
 
-def readFile(file):
+async def readFile(file):
     with open(file,"r") as f:
         lines = f.readlines()
         output = ''.join(lines)
     return output
 
 ### If you need logging, this needs to be redone haha
-def aiLog(event):
+async def aiLog(event):
     print(event)
 
 ### NEEDS WORK ###
-def crashLog(event,eLog):
+async def crashLog(event,eLog):
     tstamp = getTime()
     print("Crashed at {}: {}".format(tstamp, eLog))
 

@@ -5,7 +5,7 @@ except ImportError:
     from helper import *
 
 #-> !yt <search string>
-def ytSearch(room, event):
+async def ytSearch(room, event):
     aiLog(event)
     args = event.body.split()
     api_key = SECRETS["keys"]["youtube_api"]
@@ -38,7 +38,7 @@ def ytSearch(room, event):
         crashLog(event,aiEx)
 
  #-> !ud <search string>
-def udSearch(room, event):
+async def udSearch(room, event):
     aiLog(event)
     args = event.body.split()
     try:
@@ -55,14 +55,14 @@ def udSearch(room, event):
         else:
             udDef = data['list'][0]['definition']
             udExm = data['list'][0]['example']
-            udSnd = data['list'][0]['sound_urls'] # def keep an eye on this
+            udSnd = data['list'][0]['sound_urls'] # async def keep an eye on this
             udSound = '\n'.join(udSnd)
             return '<h3>Definition: "'+searchString+'"</h3>'+udDef+'\n'+fmt1+"Sound URLS:\n"+udSound+fmt2
     except Exception as aiEx:
         crashLog(event,aiEx)
 
 # This is down and needs to be reimplemented, can use a text file
-def lameInsult(room, event):
+async def lameInsult(room, event):
     aiLog(event)
     url = "https://evilinsult.com/generate_insult.php?lang=en&type=json"
     try:    

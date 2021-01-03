@@ -7,7 +7,7 @@ except ImportError:
 import re
 
 #-> !cid <number>
-def cidSearch(room, event):
+async def cidSearch(room, event):
     aiLog(event)
     args = event.body.split()
     initialNum    = args[1]
@@ -49,7 +49,7 @@ def cidSearch(room, event):
 # later expand to a strip function that detects what kind of link it is
 # uses verify_google function from helper.py
 # TODO write a wrapper, have this return false and then send message based on that?
-def degoogle(room, event):
+async def degoogle(room, event):
     try:
         aiLog(event)
         args = event.body.split()
@@ -94,7 +94,7 @@ def degoogle(room, event):
 
 # !gs <query>
 # search google for your query and return all cleaned results + descriptions
-def degoogle_all(room, event):
+async def degoogle_all(room, event):
     try:
         aiLog(event)
         args = event.body.split()
@@ -177,7 +177,7 @@ def degoogle_all(room, event):
 
 
 # Get random user data
-def fakeID(room, event):
+async def fakeID(room, event):
     aiLog(event)
     url = 'http://randomuser.me/api/'
     res = requests.get(url)
@@ -247,7 +247,7 @@ def fakeID(room, event):
     output += '</code></pre>'
     return output
 
-def vtSearch(room, event):
+async def vtSearch(room, event):
     SECRETS = loadYML('secrets.yml')
     vtApiKey = SECRETS["keys"]["virus_total"]
     if len(vtApiKey) == 0:
