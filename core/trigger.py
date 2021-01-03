@@ -8,10 +8,10 @@ except ImportError:
     from helper import *
 
 def blackhat(room, event):
-    bh = getLine("assets/blackhatquote.txt")
+    bh = await getLine("assets/blackhatquote.txt")
     return "{} {}".format(s, bh)
 
 def skid(room, event):
-    skidverb = getLine("assets/skidverb.txt")
+    skidverb = await getLine("assets/skidverb.txt")
     s = event.sender
     return "{}, who are you calling a skid? Heh, do you even {}".format(s, skidverb)

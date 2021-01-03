@@ -22,7 +22,7 @@ except ImportError:
     from helper import *
 
 async def secTrails(room,event):
-    aiLog(event)
+    await aiLog(event)
     args = event.body.split()
     domain = args[1]
     api_key = SECRETS["keys"]["sectrails"]
@@ -76,7 +76,7 @@ async def secTrails(room,event):
       return "Something broke! (Probably the API key is exhausted)"
 
 async def ipinfo(room, event):
-    aiLog(event)
+    await aiLog(event)
     args = event.body.split()
     ip  = args[1]
     if len(ip) > 5:
@@ -90,8 +90,8 @@ async def ipinfo(room, event):
     keyList = ['hostname','city','region','country','loc','postal','phone','org']
     if 'error' in data:
         ipOut = 'Not a valid IP!'
-        ip = getFace('nay')
-    elif valid_ip:
+        ip = await getFace('nay')
+    elif await valid_ip:
         ipOut = fmt1
         for k in keyList:
             if k in data:
@@ -103,7 +103,7 @@ async def ipinfo(room, event):
 
 #-> !bssid XX:XX:XX:XX:XX:XX
 async def bssid_lookup(room, event):
-    aiLog(event)
+    await aiLog(event)
     args = event.body.split()
     if len(args) <= 1 or args[1] == '-h':
         return "usage: !bssid <XX:XX:XX:XX:XX:XX>"
@@ -182,13 +182,13 @@ Google Maps: {}
 -------------------------------
                     </code></pre>'''.format(trilat, trilong, housenumber, road, city, region, country, ssid, netid, name, typeofnet, comment, wep, channel, bcninterval, freenet, dhcp, paynet, userFound, encryption, gmapsurl)
             except Exception as aiEx:
-                crashLog(event,aiEx)
+                await crashLog(event,aiEx)
         else:
             return "Nice Try"
 
 async def dnsdumpster(room, event):
     try:
-      aiLog(event)
+      await aiLog(event)
       args = event.body.split()
       domain = args[1]
 
@@ -223,10 +223,10 @@ async def dnsdumpster(room, event):
     #    room.send_text("DNS Map:")
     #    room.send_file(imgurl,'map.png')
     #except Exception as aiEx:
-    #    crashLog(event,aiEx)
+    #    await crashLog(event,aiEx)
 
 async def bgpViewASN(room,event):
-  aiLog(event)
+  await aiLog(event)
   args = event.body.split()
   try:
     asn = args[1]
@@ -294,10 +294,10 @@ async def bgpViewASN(room,event):
       bgpOut += "    Speed: {}\n\n".format(i["speed"])
     return "<pre><code>"+bgpOut+"</code></pre>"
   except Exception as aiEx:
-    crashLog(event,aiEx)
+    await crashLog(event,aiEx)
 
 async def bgpViewPrefix(room,event):
-  aiLog(event)
+  await aiLog(event)
   args = event.body.split()
   prefix = args[1]
   try:
@@ -323,10 +323,10 @@ async def bgpViewPrefix(room,event):
                 bgpOut += "   AS{} | {} | {} | {}\n".format(u["asn"],u["name"],u["description"],u["country_code"])
     return "<pre><code>"+bgpOut+"</code></pre>"
   except Exception as aiEx:
-    crashLog(event,aiEx)
+    await crashLog(event,aiEx)
 
 async def getMACVendor(room,event):
-  aiLog(event)
+  await aiLog(event)
   args = event.body.split()
   try:
     mac = args[1]
@@ -338,7 +338,7 @@ async def getMACVendor(room,event):
     else:
       return "No data!"
   except Exception as aiEx:
-    crashLog(event,aiEx)
+    await crashLog(event,aiEx)
 
 async def shodanGetIP(banner):
     if 'ipv6' in banner:
@@ -349,7 +349,7 @@ async def shodanSearch(room,event):
   # Show the host information in a user-friendly way and try to include
   # as much relevant information as possible.
   try:
-    aiLog(event)
+    await aiLog(event)
     args = event.body.split()
     search_term = args[1]
     SHODAN_API_KEY = SECRETS["keys"]["shodan"]
@@ -361,7 +361,7 @@ async def shodanSearch(room,event):
     except:
       return "<pre><code>No results!</code></pre>"
     output  = """"""
-    output += shodanGetIP(host) + '\n'
+    output += await shodanGetIP(host) + '\n'
     if len(host['hostnames']) > 0:
         output += u'{:25s}{}\n'.format('Hostnames:', ';'.join(host['hostnames']))
 
@@ -467,16 +467,16 @@ async def shodanSearch(room,event):
     output = re.sub(r"\x00|\x01|\x01|\x02|\x03|\x04|\x05|\x06|\x07|\x08|\x0b|\x0c|\x0e|\x0f|\x10|\x11|\x12|\x13|\x14|\x15|\x16|\x17|\x18|\x19|\x1a|\x1b|\x1c|\x1d|\x1e|\x7f", lambda m: "\\" + hex(bytearray(m.group(0).encode("utf-8"))[0]) if m.group(0) else '0',output)
     return "<pre><code>"+output+"</code></pre>"
   except Exception as aiEx:
-    crashLog(event,aiEx)
+    await crashLog(event,aiEx)
 
 async def headerGrab(room,event):
   try:
-    aiLog(event)
+    await aiLog(event)
     args = event.body.split()
     url = args[1]
     if url[0:4] != "http":
       url = "http://" + url
-    rUA = getLine("assets/useragents.txt") # Random User Agent
+    rUA = await getLine("assets/useragents.txt") # Random User Agent
     rUA = rUA.split("\n")[0]
     headers = { 'User-Agent': rUA }
     r = requests.get(url, headers=headers, timeout=15, verify=False)
@@ -496,22 +496,22 @@ async def headerGrab(room,event):
     return "<pre><code>"+headerOut+"</code></pre>"
 
   except Exception as aiEx:
-    crashLog(event,aiEx)
+    await crashLog(event,aiEx)
     return "<pre><code>No Response!</code></pre>"
 
-async def resolver(host_name):
+async def await resolver(host_name):
   host_ip = socket.gethostbyname(host_name) 
   return host_ip
 
 async def resolveHost(room,event):
   try:
-    aiLog(event)
+    await aiLog(event)
     args = event.body.split()
     host_name = args[1]
-    host_ip = resolver(host_name) 
+    host_ip = await resolver(host_name) 
     return "<pre><code>"+host_ip+"</code></pre>"
   except Exception as aiEx:
-    crashLog(event,aiEx)
+    await crashLog(event,aiEx)
     return "<pre><code>Couldn't resolve IP!</code></pre>"
 
 async def gn(ip):
@@ -542,17 +542,17 @@ async def gn(ip):
 
 async def gnWrapper(room,event):
   try:
-    aiLog(event)
+    await aiLog(event)
     args = event.body.split()
     searchIP = args[1]
     ip = ""
-    if valid_ip(searchIP):
+    if await valid_ip(searchIP):
       ip = searchIP
     else:
-      ip = resolver(searchIP)
+      ip = await resolver(searchIP)
     gnR = gn(ip)
     if gnR:
       return "<pre><code>"+gnR+"</code></pre>"
   except Exception as aiEx:
-    crashLog(event,aiEx)
+    await crashLog(event,aiEx)
     return "<pre><code>No Results!</code></pre>"

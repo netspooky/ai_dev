@@ -8,13 +8,13 @@ import re
 
 #-> !cid <number>
 async def cidSearch(room, event):
-    aiLog(event)
+    await aiLog(event)
     args = event.body.split()
     initialNum    = args[1]
     phonenumber   = getDigits(initialNum)
 
     # This is an easier way of accessing this api which was used in Wish
-    SECRETS = loadYML('secrets.yml')
+    SECRETS = await loadYML('secrets.yml')
     api_key = SECRETS["keys"]["twilio"]
     if len(api_key) == 0:
         return "Please set up a Twilio API key!"
@@ -42,7 +42,7 @@ async def cidSearch(room, event):
             return '<pre><code>' + text + '</code></pre>'
     except Exception as aiEx:
         text = 'Something broke :('
-        crashLog(event,aiEx)
+        await crashLog(event,aiEx)
         return '<pre><code>' + text + '</code></pre>'
 
 #-> !dg <url>
@@ -51,14 +51,14 @@ async def cidSearch(room, event):
 # TODO write a wrapper, have this return false and then send message based on that?
 async def degoogle(room, event):
     try:
-        aiLog(event)
+        await aiLog(event)
         args = event.body.split()
         if len(args) >= 2:
             url = args[1]
         else:
             text = 'usage: !dg <google search result url> to degoogle a link and extract just the target url!'
             return '<pre><code>' + text + '</code></pre>'
-        if verify_google(url):
+        if await verify_google(url):
             result = False
             segments = re.split('(&q|url|usg|sa|url\?q)=', url)
             if segments:
@@ -89,14 +89,14 @@ async def degoogle(room, event):
             return '<pre><code>' + text + '</code></pre>'
     except Exception as aiEx:
         text = 'Something broke :('
-        crashLog(event,aiEx)
+        await crashLog(event,aiEx)
         return '<pre><code>' + text + '</code></pre>'
 
 # !gs <query>
 # search google for your query and return all cleaned results + descriptions
 async def degoogle_all(room, event):
     try:
-        aiLog(event)
+        await aiLog(event)
         args = event.body.split()
         if len(args) >= 2:
             query = args[1]
@@ -109,7 +109,7 @@ async def degoogle_all(room, event):
             text = 'usage: !gs <query> to search google and return sanitized result links!'
             return '<pre><code>' + text + '</code></pre>'
 
-        url = make_google_link(query)
+        url = await make_google_link(query)
         r = requests.get(url)
         #match_result_segment = r'<a href="/url\?q=http.+?(?="><div)"><div class="[A-Za-z\d ]+">.*?(?=<div)'
         match_result_segment = r'<a href="/url\?q=http.+?(?="><[spandiv]{3,4})"><[spandiv]{3,4} class="[A-Za-z\d ]+">.*?(?=<[spandiv]{3,4})'
@@ -171,14 +171,14 @@ async def degoogle_all(room, event):
             return '<pre><code>' + text + '</code></pre>'
     except Exception as aiEx:
         text = 'Something broke :('
-        crashLog(event,aiEx)
+        await crashLog(event,aiEx)
         return '<pre><code>' + text + '</code></pre>'
 
 
 
 # Get random user data
 async def fakeID(room, event):
-    aiLog(event)
+    await aiLog(event)
     url = 'http://randomuser.me/api/'
     res = requests.get(url)
     data = json.loads(res.text)
@@ -248,12 +248,12 @@ async def fakeID(room, event):
     return output
 
 async def vtSearch(room, event):
-    SECRETS = loadYML('secrets.yml')
+    SECRETS = await loadYML('secrets.yml')
     vtApiKey = SECRETS["keys"]["virus_total"]
     if len(vtApiKey) == 0:
         return "Please set up a Virus Total API key!"
     vtHeaders = {'x-apikey': vtApiKey}
-    aiLog(event)
+    await aiLog(event)
     try:
       args     = event.body.split()
       vtHash   = args[1]
@@ -299,5 +299,5 @@ async def vtSearch(room, event):
       return '<pre><code>' + vtOut + '</code></pre>'
     except Exception as aiEx:
       text = 'No Results or API Key Exhausted!'
-      crashLog(event,aiEx)
+      await crashLog(event,aiEx)
       return '<pre><code>' + text + '</code></pre>'

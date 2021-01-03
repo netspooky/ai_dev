@@ -11,37 +11,37 @@ import re
 from urllib.request import urlopen
 
 async def helpCB(room, event):
-    aiLog(event)
+    await aiLog(event)
     helpFile = readFile('assets/helpfile.txt')
     return helpFile
 
 async def testCB(room,event):
-    aiLog(event)
+    await aiLog(event)
     return "Test Success!"
 
 async def archCB(room, event):
-    aiLog(event)
+    await aiLog(event)
     s = event.sender
     out = "Hey {}, use this guide! https://gist.github.com/netspooky/cad9a183daf3dfcbc677221ff452c15b".format(s)
     return out
 
 async def ballCB(room, event):
-    aiLog(event)
-    ball   = getLine("assets/8ball.txt")
+    await aiLog(event)
+    ball = getLine("assets/8ball.txt")
     return ball
 
 async def skrtCB(room, event):
-    aiLog(event)
+    await aiLog(event)
     return "This message requires Matrix Gold to view"
 
 async def stressedCB(room, event):
-    aiLog(event)
-    dStressTip = getLine("assets/stressed.txt")
+    await aiLog(event)
+    dStressTip = await getLine("assets/stressed.txt")
     return dStressTip
 
 async def cryptoCB(room,event):
     args = event.body.split()
-    coin  = args[1]
+    coin = args[1]
     if len(coin) > 4:
         return "Not a coin lol"
     else:
@@ -53,4 +53,4 @@ async def cryptoCB(room,event):
             coinOut = "{}: ${}".format(coin,price)
             return coinOut
         except Exception as aiEx:
-            crashLog(event,aiEx)
+            await crashLog(event,aiEx)

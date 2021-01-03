@@ -6,7 +6,7 @@ except ImportError:
 
 #-> !yt <search string>
 async def ytSearch(room, event):
-    aiLog(event)
+    await aiLog(event)
     args = event.body.split()
     api_key = SECRETS["keys"]["youtube_api"]
     if len(api_key) == 0:
@@ -35,11 +35,11 @@ async def ytSearch(room, event):
         else:
             return "https://www.youtube.com/watch?v=KwDrfMCsIwg"
     except Exception as aiEx:
-        crashLog(event,aiEx)
+        await crashLog(event,aiEx)
 
  #-> !ud <search string>
 async def udSearch(room, event):
-    aiLog(event)
+    await aiLog(event)
     args = event.body.split()
     try:
         args.pop(0)
@@ -50,7 +50,7 @@ async def udSearch(room, event):
         keyList = ['definition','example','sound_urls']
 
         if not data['list']:
-            face = getFace('nay')
+            face = await getFace('nay')
             return '<h2>{}</h2>'.format(face)
         else:
             udDef = data['list'][0]['definition']
@@ -59,11 +59,11 @@ async def udSearch(room, event):
             udSound = '\n'.join(udSnd)
             return '<h3>Definition: "'+searchString+'"</h3>'+udDef+'\n'+fmt1+"Sound URLS:\n"+udSound+fmt2
     except Exception as aiEx:
-        crashLog(event,aiEx)
+        await crashLog(event,aiEx)
 
 # This is down and needs to be reimplemented, can use a text file
 async def lameInsult(room, event):
-    aiLog(event)
+    await aiLog(event)
     url = "https://evilinsult.com/generate_insult.php?lang=en&type=json"
     try:    
         res = requests.get(url)
@@ -71,7 +71,7 @@ async def lameInsult(room, event):
         if 'insult' in data:
             return "<pre><code>{}</code></pre>".format(data['insult'])
     except Exception as aiEx:
-        crashLog(event,aiEx)
+        await crashLog(event,aiEx)
 
 #-> !inspire [no args]
 async def inspire(room, event):
