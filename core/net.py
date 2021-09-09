@@ -91,7 +91,7 @@ async def ipinfo(room, event):
     if 'error' in data:
         ipOut = 'Not a valid IP!'
         ip = await getFace('nay')
-    elif await valid_ip:
+    elif valid_ip:
         ipOut = fmt1
         for k in keyList:
             if k in data:
