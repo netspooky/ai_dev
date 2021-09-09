@@ -189,7 +189,7 @@ async def aiLog(event):
 
 ### NEEDS WORK ###
 async def crashLog(event,eLog):
-    tstamp = getTime()
+    tstamp = await getTime()
     print("Crashed at {}: {}".format(tstamp, eLog))
 
 ### modified send_file.py example code, should be cleaned up ###
