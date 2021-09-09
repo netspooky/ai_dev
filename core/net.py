@@ -12,6 +12,7 @@ import textwrap
 import re
 import requests
 import socket
+import time
 from greynoise.api import GreyNoise
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -228,6 +229,7 @@ async def dnsdumpster(room, event):
 async def bgpViewASN(room,event):
   await aiLog(event)
   args = event.body.split()
+  rlSleep = 0.3 # Ratelimit...
   try:
     asn = args[1]
     bgpOut = ""
@@ -250,6 +252,7 @@ async def bgpViewASN(room,event):
       bgpOut += "Contact: {}\n".format(asn_email)
       bgpOut += "Abuse..: {}\n".format(asn_abuse)
       bgpOut += "Address: "+" ".join(asn_addr) + "\n"
+    time.sleep(rlSleep)
     bgpOut += "\n[ Prefixes ]\n"
     url = 'https://api.bgpview.io/asn/{}/prefixes'.format(asn)
     res = requests.get(url)
@@ -257,6 +260,7 @@ async def bgpViewASN(room,event):
     for i in data["data"]["ipv4_prefixes"]:
       bgpOut += "  {} | {} | {}\n".format(i["prefix"],i["name"],i["description"])
     ### Get Peers
+    time.sleep(rlSleep)
     bgpOut += "\n[ Peers ]\n"
     url = 'https://api.bgpview.io/asn/{}/peers'.format(asn)
     res = requests.get(url)
@@ -264,6 +268,7 @@ async def bgpViewASN(room,event):
     for i in data["data"]["ipv4_peers"]:
       bgpOut += "  AS{} | {} | {} | {}\n".format(i["asn"],i["name"],i["description"],i["country_code"])
     ### Upstreams
+    time.sleep(rlSleep)
     bgpOut += "\n[ Upstreams ]\n"
     url = 'https://api.bgpview.io/asn/{}/upstreams'.format(asn)
     res = requests.get(url)
@@ -272,6 +277,7 @@ async def bgpViewASN(room,event):
       bgpOut += "  AS{} | {} | {} | {}\n".format(i["asn"],i["name"],i["description"],i["country_code"])
       bgpOut += "  Graph: {}\n".format(data["data"]["combined_graph"])
     ### Downstreams
+    time.sleep(rlSleep)
     bgpOut += "\n[ Downstreams ]\n"
     url = 'https://api.bgpview.io/asn/{}/downstreams'.format(asn)
     res = requests.get(url)
@@ -279,6 +285,7 @@ async def bgpViewASN(room,event):
     for i in data["data"]["ipv4_downstreams"]:
       bgpOut += "  AS{} | {} | {} | {}\n".format(i["asn"],i["name"],i["description"],i["country_code"])
     ### IXs
+    time.sleep(rlSleep)
     bgpOut += "\n[ IXs ]\n"
     url = 'https://api.bgpview.io/asn/{}/ixs'.format(asn)
     res = requests.get(url)
