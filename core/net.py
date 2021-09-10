@@ -557,7 +557,7 @@ async def gnWrapper(room,event):
       ip = searchIP
     else:
       ip = await resolver(searchIP)
-    gnR = gn(ip)
+    gnR = await gn(ip)
     if gnR:
       return "<pre><code>"+gnR+"</code></pre>"
   except Exception as aiEx:
