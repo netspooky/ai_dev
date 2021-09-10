@@ -229,7 +229,7 @@ async def dnsdumpster(room, event):
 async def bgpViewASN(room,event):
   await aiLog(event)
   args = event.body.split()
-  rlSleep = 0.3 # Ratelimit...
+  rlSleep = 0.5 # Ratelimit...
   try:
     asn = args[1]
     bgpOut = ""
