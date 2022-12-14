@@ -22,6 +22,11 @@ try:
 except ImportError:
     from helper import *
 
+async def wpRandom(room, event):
+    await aiLog(event)
+    article = requests.get("https://en.wikipedia.org/wiki/Special:Random").url
+    return article
+
 async def secTrails(room,event):
     await aiLog(event)
     args = event.body.split()

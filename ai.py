@@ -5,7 +5,7 @@ import json
 import os
 import core
 from core import *
-
+ 
 CONFIG_FILE = "credentials.json"
 INIT_TIME   = int(time.time())*1000 # Dumb time hack lol
 
@@ -86,6 +86,7 @@ cmdDict = { "!brokencommand": core.helper.getTime, # Broken?
             #"!dgs": core.osint.degoogle_all, # - Can just implement the degoogle library
             "!vt": core.osint.vtSearch,
             "!ud": core.media.udSearch,
+            "!w": core.net.wpRandom,
             "!yt": core.media.ytSearch
 }
 
