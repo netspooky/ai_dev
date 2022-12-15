@@ -87,6 +87,7 @@ cmdDict = { "!brokencommand": core.helper.getTime, # Broken?
             "!vt": core.osint.vtSearch,
             "!ud": core.media.udSearch,
             "!w": core.net.wpRandom,
+            "!x64": core.asm.x64Handler,
             "!yt": core.media.ytSearch
 }
 
