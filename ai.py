@@ -60,6 +60,7 @@ cmdDict = { "!brokencommand": core.helper.getTime, # Broken?
             "!8ball": core.generic.ballCB,
             "!skrt": core.generic.skrtCB,
             "!stressed": core.generic.stressedCB,
+            "!os": core.generic.obliqueCB,
             "!cc": core.generic.cryptoCB,
             "!inspire": core.media.inspire,
             ### Exploit Commands
