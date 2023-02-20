@@ -39,6 +39,11 @@ async def stressedCB(room, event):
     dStressTip = await getLine("assets/stressed.txt")
     return dStressTip
 
+async def obliqueCB(room, event):
+    await aiLog(event)
+    obliqueStrategy = await getLine("assets/obliquestrategies.txt")
+    return obliqueStrategy
+
 async def cryptoCB(room,event):
     args = event.body.split()
     coin = args[1]
