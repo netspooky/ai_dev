@@ -192,6 +192,42 @@ Google Maps: {}
         else:
             return "Nice Try"
 
+async def dnsdumpster2(room, event):
+    try:
+      await aiLog(event)
+      args = event.body.split()
+      domain = args[1]
+
+      out = ''
+      res = DNSDumpsterAPI(True).search(domain)
+
+      out += "Domain:"
+      out += res['domain']
+      # DNS Servers
+      out += "\n<h2>DNS Servers</h2><table><thead><tr><th>Domain</th><th>IP</th><th>AS</th><th>Provider</th><th>Country</th></tr></thead><tbody>"
+      for entry in res['dns_records']['dns']:
+          out += "<tr><td>{domain}</td><td>{ip}</td><td>{as}</td><td>{provider}</td><td>{country}</td></tr>".format(**entry)
+      out += "</tbody></table>"
+
+      out += "\n<h2>MX Records</h2><table><thead><tr><th>Domain</th><th>IP</th><th>AS</th><th>Provider</th><th>Country</th></tr></thead><tbody>"
+      for entry in res['dns_records']['mx']:
+          out += "<tr><td>{domain}</td><td>{ip}</td><td>{as}</td><td>{provider}</td><td>{country}</td></tr>".format(**entry)
+      out += "</tbody></table>"
+      out += "\n<h2>Host Records (A)</h2><table><thead><tr><th>Domain</th><th>rDNS</th><th>IP</th><th>AS</th><th>Provider</th><th>Country</th></tr></thead><tbody>"
+      for entry in res['dns_records']['host']:
+          if entry['reverse_dns']:
+              out += "<tr><td>{domain}</td><td>{reverse_dns}</td><td>{ip}</td><td>{as}</td><td>{provider}</td><td>{country}</td></tr>".format(**entry)
+          else:
+              out += "<tr><td>{domain}</td><td>-</td><td>{ip}</td><td>{as}</td><td>{provider}</td><td>{country}</td></tr>".format(**entry)
+      out += "</tbody></table>"
+      out += "\n<h2>TXT Records</h2><ul>"
+      for entry in res['dns_records']['txt']:
+          out += f"<li>{entry}</li>"
+      out += "</ul>"
+    except:
+        out = "No results!"
+    return out
+
 async def dnsdumpster(room, event):
     try:
       await aiLog(event)

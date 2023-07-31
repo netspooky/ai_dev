@@ -80,6 +80,7 @@ cmdDict = { "!brokencommand": core.helper.getTime, # Broken?
             "!host": core.net.resolveHost,
             "!gn": core.net.gnWrapper,
             "!dns": core.net.secTrails,
+            "!dnsd2": core.net.dnsdumpster2,
             ### Osint Commands
             "!fakeid": core.osint.fakeID,
             "!cid": core.osint.cidSearch,
