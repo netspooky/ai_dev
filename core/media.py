@@ -55,9 +55,12 @@ async def udSearch(room, event):
         else:
             udDef = data['list'][0]['definition']
             udExm = data['list'][0]['example']
-            udSnd = data['list'][0]['sound_urls'] # async def keep an eye on this
-            udSound = '\n'.join(udSnd)
-            return '<h3>Definition: "'+searchString+'"</h3>'+udDef+'\n'+fmt1+"Sound URLS:\n"+udSound+fmt2
+            udSound = "" # Fix this lol
+            if 'sound_urls' in data['list'][0]:
+                udSnd = data['list'][0]['sound_urls'] # async def keep an eye on this
+                udSndUrls = '\n'.join(udSnd)
+                udSound = f"{fmt1}Sound URLs:\n{udSndUrls}{fmt2}"
+            return '<h3>Definition: "'+searchString+'"</h3>'+udDef+'\n'+udSound
     except Exception as aiEx:
         await crashLog(event,aiEx)
 
