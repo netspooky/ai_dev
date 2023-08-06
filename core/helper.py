@@ -185,7 +185,8 @@ async def readFile(file):
 
 ### If you need logging, this needs to be redone haha
 async def aiLog(event):
-    print(event)
+    return # This is now covered in the bot class
+#    print(event)
 
 ### NEEDS WORK ###
 async def crashLog(event,eLog):

@@ -2,3 +2,5 @@ shodan
 dnsdumpster
 greynoise
 python-magic
+cryptography
+matrix-nio
