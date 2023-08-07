@@ -185,9 +185,14 @@ cmdDict = {
                 "help": "Look up a term on Urban Dictionary",
                 "usage": "ud [search string]",
             },
+            "urlscan": {
+                "func": core.net.urlScanScan,
+                "help": "Submit a url to urlscan.io (unlisted)",
+                "usage": "urlscan [url]",
+            },
             "uss": {
                 "func": core.net.urlScanSearch,
-                "help": "Search for a domain on urlscan",
+                "help": "Search for a domain on urlscan.io",
                 "usage": "uss [domain]",
             },
             "vt": {

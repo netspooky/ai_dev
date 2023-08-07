@@ -22,6 +22,61 @@ try:
 except ImportError:
     from helper import *
 
+async def urlScanScan(room, event, cmdArgs):
+    # Does an unlisted scan
+    urlToScan = cmdArgs[0]
+    urlScanAPIKey = SECRETS["keys"]["urlscan"]
+    if len(urlScanAPIKey) == 0:
+        return "Please configure a URL Scan API Key! https://urlscan.io"
+    headers = {'API-Key':urlScanAPIKey,'Content-Type':'application/json'}
+    pdata = {"url": urlToScan, "visibility": "unlisted"}
+    scanResponse = requests.post('https://urlscan.io/api/v1/scan/',headers=headers, data=json.dumps(pdata))
+    scanResponseJson = json.loads(scanResponse.text)
+    scanOut = ""
+    scanOut += "<pre><code>"
+    if 'success' in scanResponseJson['message']:
+        scanResponseURL = scanResponseJson['result']
+        scanOut += f"Full Scan Result URL: {scanResponseURL}\n"
+        # It takes a bit of time to get the full results from the scan available to the API, need to wait or send something to dispatch to grab it later.
+        scanResponseAPIURL = scanResponseJson['api']
+        try:
+            for reqTry in range(0,15):
+                scanResultResponse = requests.get(scanResponseAPIURL)
+                if scanResultResponse.status_code == 200:
+                    scanResultJson = json.loads(scanResultResponse.text)
+                    scanOut += "[[ Requests ]]\n"
+                    lastDocUrl = ""
+                    for jReq in scanResultJson['data']['requests']:
+                        respStatus = "???"
+                        if jReq['request']['documentURL'] != lastDocUrl:
+                            lastDocUrl = jReq['request']['documentURL']
+                            scanOut += f"{jReq['request']['documentURL']}\n"
+                        if 'response' in jReq['response']:
+                            respStatus = jReq['response']['response']['status']
+                        scanOut += f"  -> [{respStatus}] {jReq['request']['request']['method']} {jReq['request']['request']['url']}\n"
+                    if 'links' in scanResultJson['data']:
+                        scanOut += "\n[[ Links ]]\n"
+                        for dlink in scanResultJson['data']['links']:
+                            scanOut += f"- {dlink['href']} {dlink['text']}\n"
+                    if 'console' in scanResultJson['data']:
+                        scanOut += "\n[[ Console ]]\n"
+                        for consoleMsg in scanResultJson['data']['console']:
+                            scanOut += f"{consoleMsg['message']['url']} [{consoleMsg['message']['source']} {consoleMsg['message']['level']}] {consoleMsg['message']['text']}"
+                    scanOut += "</code></pre>"
+                    break
+                else:
+                     print(f"{scanResultResponse} - sleeping {reqTry}")
+                     time.sleep(1)
+        except Exception as aiEx:
+            await crashLog(event,aiEx)
+            return f"<pre><code>Error: {aiEx}</code></pre>"
+        return scanOut
+    else:
+        scanOut += "<pre><code>"
+        scanOut += scanResponseJson['message']
+        scanOut += "</code></pre>"
+        return scanOut
+
 async def urlScanSearch(room, event, cmdArgs):
     domain    = cmdArgs[0]
     url = f"https://urlscan.io/api/v1/search/?q=domain:{domain}"
