@@ -27,8 +27,7 @@ async def wpRandom(room, event, cmdArgs):
     return article
 
 async def secTrails(room, event, cmdArgs):
-    args = event.body.split()
-    domain = args[1]
+    domain = cmdArgs[0]
     api_key = SECRETS["keys"]["sectrails"]
     output_dir = SECRETS["config"]["output_dir"]
     fqdn = SECRETS["config"]["domain"]
@@ -80,8 +79,7 @@ async def secTrails(room, event, cmdArgs):
       return "Something broke! (Probably the API key is exhausted)"
 
 async def ipinfo(room, event, cmdArgs):
-    args = event.body.split()
-    ip  = args[1]
+    ip  = cmdArgs[0]
     if len(ip) > 5:
         url = 'http://ipinfo.io/{}'.format(ip)
     else:
@@ -106,13 +104,12 @@ async def ipinfo(room, event, cmdArgs):
 
 #-> !bssid XX:XX:XX:XX:XX:XX
 async def bssid_lookup(room, event, cmdArgs):
-    args = event.body.split()
-    if len(args) <= 1 or args[1] == '-h':
+    if len(cmdArgs) == 0  or cmdArgs[0] == '-h':
         return "usage: !bssid <XX:XX:XX:XX:XX:XX>"
     else:
-        if re.match(r'^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$', args[1]):
+        if re.match(r'^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$', cmdArgs[0]):
             try:
-                mac = urllib.parse.quote_plus(args[1])
+                mac = urllib.parse.quote_plus(cmdArgs[0])
                 api_key = SECRETS["keys"]["wigle"]
                 if len(api_key) == 0:
                   return "Please set up a Wigle API key!"
@@ -185,13 +182,13 @@ Google Maps: {}
                     </code></pre>'''.format(trilat, trilong, housenumber, road, city, region, country, ssid, netid, name, typeofnet, comment, wep, channel, bcninterval, freenet, dhcp, paynet, userFound, encryption, gmapsurl)
             except Exception as aiEx:
                 await crashLog(event,aiEx)
+                return f"<pre><code>Error: {aiEx}</code></pre>"
         else:
             return "Nice Try"
 
 async def dnsdumpster2(room, event, cmdArgs):
     try:
-      args = event.body.split()
-      domain = args[1]
+      domain = cmdArgs[0]
 
       out = ''
       res = DNSDumpsterAPI(True).search(domain)
@@ -225,8 +222,7 @@ async def dnsdumpster2(room, event, cmdArgs):
 
 async def dnsdumpster(room, event, cmdArgs):
     try:
-      args = event.body.split()
-      domain = args[1]
+      domain = cmdArgs[0]
 
       final_result = ''
       res = DNSDumpsterAPI(True).search(domain)
@@ -262,10 +258,9 @@ async def dnsdumpster(room, event, cmdArgs):
     #    await crashLog(event,aiEx)
 
 async def bgpViewASN(room, event, cmdArgs):
-  args = event.body.split()
   rlSleep = 0.5 # Ratelimit...
   try:
-    asn = args[1]
+    asn = cmdArgs[0]
     bgpOut = ""
     url = 'https://api.bgpview.io/asn/{}'.format(asn)
     res = requests.get(url)
@@ -336,10 +331,10 @@ async def bgpViewASN(room, event, cmdArgs):
     return "<pre><code>"+bgpOut+"</code></pre>"
   except Exception as aiEx:
     await crashLog(event,aiEx)
+    return f"<pre><code>Error: {aiEx}</code></pre>"
 
 async def bgpViewPrefix(room, event, cmdArgs):
-  args = event.body.split()
-  prefix = args[1]
+  prefix = cmdArgs[0]
   try:
     bgpOut = ""
     url = 'https://api.bgpview.io/prefix/{}'.format(prefix)
@@ -364,11 +359,11 @@ async def bgpViewPrefix(room, event, cmdArgs):
     return "<pre><code>"+bgpOut+"</code></pre>"
   except Exception as aiEx:
     await crashLog(event,aiEx)
+    return f"<pre><code>Error: {aiEx}</code></pre>"
 
 async def getMACVendor(room, event, cmdArgs):
-  args = event.body.split()
   try:
-    mac = args[1]
+    mac = cmdArgs[0]
     url = 'https://api.macvendors.com/{}'.format(mac)
     res = requests.get(url)
     data = res.text
@@ -378,6 +373,7 @@ async def getMACVendor(room, event, cmdArgs):
       return "No data!"
   except Exception as aiEx:
     await crashLog(event,aiEx)
+    return f"<pre><code>Error: {aiEx}</code></pre>"
 
 async def shodanGetIP(banner):
     if 'ipv6' in banner:
@@ -388,8 +384,7 @@ async def shodanSearch(room, event, cmdArgs):
   # Show the host information in a user-friendly way and try to include
   # as much relevant information as possible.
   try:
-    args = event.body.split()
-    search_term = args[1]
+    search_term = cmdArgs[0]
     SHODAN_API_KEY = SECRETS["keys"]["shodan"]
     if len(SHODAN_API_KEY) == 0:
       return "Please set up a Shodan API key!"
@@ -506,11 +501,11 @@ async def shodanSearch(room, event, cmdArgs):
     return "<pre><code>"+output+"</code></pre>"
   except Exception as aiEx:
     await crashLog(event,aiEx)
+    return f"<pre><code>Error: {aiEx}</code></pre>"
 
 async def headerGrab(room, event, cmdArgs):
   try:
-    args = event.body.split()
-    url = args[1]
+    url = cmdArgs[0]
     if url[0:4] != "http":
       url = "http://" + url
     rUA = await getLine("assets/useragents.txt") # Random User Agent
@@ -534,7 +529,7 @@ async def headerGrab(room, event, cmdArgs):
 
   except Exception as aiEx:
     await crashLog(event,aiEx)
-    return "<pre><code>No Response!</code></pre>"
+    return f"<pre><code>Error: {aiEx}</code></pre>"
 
 async def resolver(host_name):
   host_ip = socket.gethostbyname(host_name) 
@@ -542,8 +537,7 @@ async def resolver(host_name):
 
 async def resolveHost(room, event, cmdArgs):
   try:
-    args = event.body.split()
-    host_name = args[1]
+    host_name = cmdArgs[0]
     host_ip = await resolver(host_name) 
     return "<pre><code>"+host_ip+"</code></pre>"
   except Exception as aiEx:
@@ -578,8 +572,7 @@ async def gn(ip):
 
 async def gnWrapper(room, event, cmdArgs):
   try:
-    args = event.body.split()
-    searchIP = args[1]
+    searchIP = cmdArgs[0]
     ip = ""
     if await valid_ip(searchIP):
       ip = searchIP
@@ -590,4 +583,4 @@ async def gnWrapper(room, event, cmdArgs):
       return "<pre><code>"+gnR+"</code></pre>"
   except Exception as aiEx:
     await crashLog(event,aiEx)
-    return "<pre><code>No Results!</code></pre>"
+    return f"<pre><code>{aiEx}</code></pre>"
