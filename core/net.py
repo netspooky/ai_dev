@@ -27,67 +27,66 @@ async def wpRandom(room, event, cmdArgs):
     return article
 
 async def secTrails(room, event, cmdArgs):
-    domain = cmdArgs[0]
-    api_key = SECRETS["keys"]["sectrails"]
+    domain     = cmdArgs[0]
+    api_key    = SECRETS["keys"]["sectrails"]
     output_dir = SECRETS["config"]["output_dir"]
-    fqdn = SECRETS["config"]["domain"]
+    fqdn       = SECRETS["config"]["domain"]
     if len(api_key) == 0:
         return "Please set up a Security Trails API key!"
     if domain[0:4] == "http":
       domain = domain.split("//")[1] # Quick n' Dirty
     try:
-        url      = "https://api.securitytrails.com/v1/domain/{}".format(domain)
+        url      = f"https://api.securitytrails.com/v1/domain/{domain}"
         headers  = {"Accept": "application/json", "apikey": api_key}
         response = requests.get(url, headers=headers)
         out      = response.json()
         ret      = "" # What is being returned
         ### Basic Stats
-        ret += "--- Stats for Host {} ---\n".format(out["hostname"])
+        ret += f"--- Stats for Host {out['hostname']} ---\n"
         if "a" in out["current_dns"]:
             ret += "\n[ A ]\n"
             for v in out["current_dns"]["a"]["values"]:
-                ret += "- {} ({})\n".format(v["ip"],v["ip_organization"])
+                ret += f"- {v['ip']} ({v['ip_organization']})\n"
         if "txt" in out["current_dns"]:
             ret += "\n[ TXT ]\n"
             for v in out["current_dns"]["txt"]["values"]:
-                ret += "- {}\n".format(v["value"])
+                ret += f"- {v['value']}\n"
         if "ns" in out["current_dns"]:
             ret += "\n[ NS ]\n"
             for v in out["current_dns"]["ns"]["values"]:
-                ret += "- {} ({})\n".format(v["nameserver"],v["nameserver_organization"])
+                ret += f"- {v['nameserver']} ({v['nameserver_organization']})\n"
         if "mx" in out["current_dns"]:
             ret += "\n[ MX ]\n"
             for v in out["current_dns"]["mx"]["values"]:
-                ret += "- {} ({})\n".format(v["hostname"],v["hostname_organization"])
+                ret += f"- {v['hostname']} ({v['hostname_organization']})\n"
         ret += "\nSubdomain Count: {}\n".format(out["subdomain_count"])
         if out["subdomain_count"] > 0:
-            url      = "https://api.securitytrails.com/v1/domain/{}/subdomains".format(domain)
+            url      = f"https://api.securitytrails.com/v1/domain/{domain}/subdomains"
             headers  = {"Accept": "application/json", "apikey": api_key}
             response = requests.get(url, headers=headers)
             out      = response.json()
             for s in out["subdomains"]:
-              ret += "\n- {}".format(s)
+              ret += f"\n- {s}"
         if len(ret) > 5000:
-            fname = output_dir+'securitytrailz/'+domain+".txt" # Add timestamp as well
+            fname = f"{output_dir}securitytrailz/{domain}.txt" # Add timestamp as well
             f = open(fname,'w')
             f.write(ret)
             f.close()
-            return "Your output was too big, I put it here: " + fqdn + "/securitytrailz/"+domain+".txt"
+            return f"Your output was too big, I put it here: {fqdn}/securitytrailz/{domain}.txt"
         else:
-            return "<pre><code>"+ret+"</code></pre>"
+            return f"<pre><code>{ret}</code></pre>"
     except:
       return "Something broke! (Probably the API key is exhausted)"
 
 async def ipinfo(room, event, cmdArgs):
     ip  = cmdArgs[0]
-    if len(ip) > 5:
-        url = 'http://ipinfo.io/{}'.format(ip)
+    if len(ip) > 7:
+        url = f"http://ipinfo.io/{ip}"
     else:
         return
     res = requests.get(url)
     data = json.loads(res.text)
-    #print(data)
-    ipOut = ''
+    ipOut = ""
     keyList = ['hostname','city','region','country','loc','postal','phone','org']
     if 'error' in data:
         ipOut = 'Not a valid IP!'
@@ -96,11 +95,11 @@ async def ipinfo(room, event, cmdArgs):
         ipOut = fmt1
         for k in keyList:
             if k in data:
-                ipOut += '{}: {}\n'.format(k,data[k])
+                ipOut += f"{k}: {data[k]}\n"
         ipOut += fmt2
     else:
         ipOut = 'Not a valid IP!'
-    return '<h3>IP: {}</h3> {}'.format(ip,ipOut)
+    return f"<h3>IP: {ip}</h3> {ipOut}"
 
 #-> !bssid XX:XX:XX:XX:XX:XX
 async def bssid_lookup(room, event, cmdArgs):
@@ -113,78 +112,43 @@ async def bssid_lookup(room, event, cmdArgs):
                 api_key = SECRETS["keys"]["wigle"]
                 if len(api_key) == 0:
                   return "Please set up a Wigle API key!"
-                wigleLink = "https://api.wigle.net/api/v2/network/search?onlymine=false&first=0&freenet=false&paynet=false&netid={}".format(mac)
+                wigleLink = f"https://api.wigle.net/api/v2/network/search?onlymine=false&first=0&freenet=false&paynet=false&netid={mac}"
                 headers = {'Authorization': 'Basic '+api_key}
                 r = requests.get(wigleLink, headers=headers)
                 data = r.json()
-                
                 #success check
                 if data["success"] == False:
                     return "Something went wrong - Do you have a key?"
-                
                 elif data["totalResults"] == 0:
                     return "No data found"
-                
                 else:
-                    trilat      = data["results"][0]["trilat"]
-                    trilong     = data["results"][0]["trilong"]
-                    ssid        = data["results"][0]["ssid"]
-                    housenumber = data["results"][0]["housenumber"]
-                    road        = data["results"][0]["road"]
-                    city        = data["results"][0]["city"]
-                    region      = data["results"][0]["region"]
-                    country     = data["results"][0]["country"]
-                    netid       = data["results"][0]["netid"]
-                    name        = data["results"][0]["name"]
-                    typeofnet   = data["results"][0]["type"]
-                    comment     = data["results"][0]["comment"]
-                    wep         = data["results"][0]["wep"]
-                    channel     = data["results"][0]["channel"]
-                    bcninterval = data["results"][0]["bcninterval"]
-                    freenet     = data["results"][0]["freenet"]
-                    dhcp        = data["results"][0]["dhcp"]
-                    paynet      = data["results"][0]["paynet"]
-                    userFound   = data["results"][0]["userfound"]
-                    encryption  = data["results"][0]["encryption"]
-                    
+                    dres = data["results"][0]
                     #generate google maps url
-                    gmapsurl = "https://www.google.com/maps/place/{}+{}".format(trilat, trilong)
-                    
-                    #print results
-                    return '''<pre><code>
--------------------------------
-Approximate location:\n
-Latitude: {}
-Longtitude: {}\n
-Housenumber: {}
-Road: {}
-City: {}
-Region: {}
-Country: {}
--------------------------------
-Info:<br>
-SSID: {}
-NetID: {}
-Name: {}
-Type: {}
-Comment: "{}"
-WEP: {}
-Channel: {}
-Bcninterval: {}
-Freenet: {}
-DHCP: {}
-Paynet: {}
-Users: {}
-Encryption: {}
--------------------------------
-Google Maps: {}
--------------------------------
-                    </code></pre>'''.format(trilat, trilong, housenumber, road, city, region, country, ssid, netid, name, typeofnet, comment, wep, channel, bcninterval, freenet, dhcp, paynet, userFound, encryption, gmapsurl)
+                    gmapsurl = f"https://www.google.com/maps/place/{dres['trilat']}+{dres['trilong']}"
+                    cmdOut = "<h3>wigle.net BSSID Lookup</h3>"
+                    cmdOut += f"Address: {dres['housenumber']} {dres['road']}, {dres['city']}, {dres['region']} {dres['country']}<br>"
+                    cmdOut += f"Lat/Lon: {dres['trilat']}, {dres['trilong']}<br>"
+                    cmdOut += f"Google Maps: {gmapsurl}<br>"
+                    cmdOut += "<h3>Info</h3><pre><code>"
+                    cmdOut += f"SSID: {dres['ssid']}\n"
+                    cmdOut += f"NetID: {dres['netid']}\n"
+                    cmdOut += f"Name: {dres['name']}\n"
+                    cmdOut += f"Type: {dres['type']}\n"
+                    cmdOut += f"Comment: '{dres['comment']}'\n"
+                    cmdOut += f"WEP: {dres['wep']}\n"
+                    cmdOut += f"Channel: {dres['channel']}\n"
+                    cmdOut += f"Bcninterval: {dres['bcninterval']}\n"
+                    cmdOut += f"Freenet: {dres['freenet']}\n"
+                    cmdOut += f"DHCP: {dres['dhcp']}\n"
+                    cmdOut += f"Paynet: {dres['paynet']}\n"
+                    cmdOut += f"Users: {dres['userfound']}\n"
+                    cmdOut += f"Encryption: {dres['encryption']}"
+                    return cmdOut
             except Exception as aiEx:
                 await crashLog(event,aiEx)
                 return f"<pre><code>Error: {aiEx}</code></pre>"
         else:
-            return "Nice Try"
+            return "Not a valid BSSID!"
 
 async def dnsdumpster2(room, event, cmdArgs):
     try:
@@ -262,73 +226,67 @@ async def bgpViewASN(room, event, cmdArgs):
   try:
     asn = cmdArgs[0]
     bgpOut = ""
-    url = 'https://api.bgpview.io/asn/{}'.format(asn)
+    url = f"https://api.bgpview.io/asn/{asn}"
+    url_prefixes = url + "/prefixes"
+    url_peers = url + "/peers"
+    url_upstreams = url + "/upstreams"
+    url_downstreams = url + "/downstreams"
+    url_ixs = url + "/ixs"
     res = requests.get(url)
     data = json.loads(res.text)
     if data["status"] == "ok":
+      asnd = data['data']
       bgpOut += "[ ASN Data ]\n"
-      asn_name = data["data"]["name"]
-      asn_desc = data["data"]["description_short"]
-      asn_country = data["data"]["country_code"]
-      asn_webs = data["data"]["website"]
-      asn_email = data["data"]["email_contacts"][0]
-      asn_abuse = data["data"]["abuse_contacts"][0]
-      asn_addr = data["data"]["owner_address"]
-      bgpOut += "Name...: {}\n".format(asn_name)
-      bgpOut += "Desc...: {}\n".format(asn_desc)
-      bgpOut += "Country: {}\n".format(asn_country)
-      bgpOut += "Website: {}\n".format(asn_webs)
-      bgpOut += "Contact: {}\n".format(asn_email)
-      bgpOut += "Abuse..: {}\n".format(asn_abuse)
-      bgpOut += "Address: "+" ".join(asn_addr) + "\n"
+      bgpOut += f"Name...: {asnd['name']}\n"
+      bgpOut += f"Desc...: {asnd['description_short']}\n"
+      bgpOut += f"Country: {asnd['country_code']}\n"
+      bgpOut += f"Website: {asnd['website']}\n"
+      bgpOut += f"Contact: {asnd['email_contacts'][0]}\n"
+      bgpOut += f"Abuse..: {asnd['abuse_contacts'][0]}\n"
+      bgpOut += f"Address: {' '.join(asnd['owner_address'])}\n"
     time.sleep(rlSleep)
     bgpOut += "\n[ Prefixes ]\n"
-    url = 'https://api.bgpview.io/asn/{}/prefixes'.format(asn)
-    res = requests.get(url)
+    res = requests.get(url_prefixes)
     data = json.loads(res.text)
-    for i in data["data"]["ipv4_prefixes"]:
-      bgpOut += "  {} | {} | {}\n".format(i["prefix"],i["name"],i["description"])
+    for prefix in data["data"]["ipv4_prefixes"]:
+      bgpOut += f"  {prefix['prefix']} | {prefix['name']} | {prefix['description']}\n"
     ### Get Peers
     time.sleep(rlSleep)
     bgpOut += "\n[ Peers ]\n"
-    url = 'https://api.bgpview.io/asn/{}/peers'.format(asn)
-    res = requests.get(url)
+    res = requests.get(url_peers)
     data = json.loads(res.text)
-    for i in data["data"]["ipv4_peers"]:
-      bgpOut += "  AS{} | {} | {} | {}\n".format(i["asn"],i["name"],i["description"],i["country_code"])
+    for peers in data["data"]["ipv4_peers"]:
+      bgpOut += f"  AS{peers['asn']} | {peers['name']} | {peers['description']} | {peers['country_code']}\n"
     ### Upstreams
     time.sleep(rlSleep)
     bgpOut += "\n[ Upstreams ]\n"
-    url = 'https://api.bgpview.io/asn/{}/upstreams'.format(asn)
-    res = requests.get(url)
+    res = requests.get(url_upstreams)
     data = json.loads(res.text)
-    for i in data["data"]["ipv4_upstreams"]:
-      bgpOut += "  AS{} | {} | {} | {}\n".format(i["asn"],i["name"],i["description"],i["country_code"])
-      bgpOut += "  Graph: {}\n".format(data["data"]["combined_graph"])
+    for ups in data["data"]["ipv4_upstreams"]:
+      bgpOut += f"  AS{ups['asn']} | {ups['name']} | {ups['description']} | {ups['country_code']}\n"
+      bgpOut += f"  Graph: {data['data']['combined_graph']}\n"
     ### Downstreams
     time.sleep(rlSleep)
     bgpOut += "\n[ Downstreams ]\n"
-    url = 'https://api.bgpview.io/asn/{}/downstreams'.format(asn)
-    res = requests.get(url)
+    res = requests.get(url_downstreams)
     data = json.loads(res.text)
-    for i in data["data"]["ipv4_downstreams"]:
-      bgpOut += "  AS{} | {} | {} | {}\n".format(i["asn"],i["name"],i["description"],i["country_code"])
+    for ds in data["data"]["ipv4_downstreams"]:
+      bgpOut += f"  AS{ds['asn']} | {ds['name']} | {ds['description']} | {ds['country_code']}\n"
     ### IXs
     time.sleep(rlSleep)
     bgpOut += "\n[ IXs ]\n"
-    url = 'https://api.bgpview.io/asn/{}/ixs'.format(asn)
-    res = requests.get(url)
+    res = requests.get(url_ixs)
     data = json.loads(res.text)
-    for i in data["data"]:
-      bgpOut += "    IX ID: {}\n".format(i["ix_id"])
-      bgpOut += "     Name: {}\n".format(i["name"])
-      bgpOut += "Full Name: {}\n".format(i["name_full"])
-      bgpOut += "  Country: {}\n".format(i["country_code"])
-      bgpOut += "     City: {}\n".format(i["city"])
-      bgpOut += "     IPv4: {}\n".format(i["ipv4_address"])
-      bgpOut += "     IPv6: {}\n".format(i["ipv6_address"])
-      bgpOut += "    Speed: {}\n\n".format(i["speed"])
-    return "<pre><code>"+bgpOut+"</code></pre>"
+    for ixs in data["data"]:
+      bgpOut += f"    IX ID: {ixs['ix_id']}\n"
+      bgpOut += f"     Name: {ixs['name']}\n"
+      bgpOut += f"Full Name: {ixs['name_full']}\n"
+      bgpOut += f"  Country: {ixs['country_code']}\n"
+      bgpOut += f"     City: {ixs['city']}\n"
+      bgpOut += f"     IPv4: {ixs['ipv4_address']}\n"
+      bgpOut += f"     IPv6: {ixs['ipv6_address']}\n"
+      bgpOut += f"    Speed: {ixs['speed']}\n\n"
+    return f"<pre><code>{bgpOut}</code></pre>"
   except Exception as aiEx:
     await crashLog(event,aiEx)
     return f"<pre><code>Error: {aiEx}</code></pre>"
@@ -337,38 +295,39 @@ async def bgpViewPrefix(room, event, cmdArgs):
   prefix = cmdArgs[0]
   try:
     bgpOut = ""
-    url = 'https://api.bgpview.io/prefix/{}'.format(prefix)
+    url = f"https://api.bgpview.io/prefix/{prefix}"
     res = requests.get(url)
     data = json.loads(res.text)
     if data["status"] == "ok":
         bgpOut += "[ Prefix Info ]\n\n"
-        bgpOut += " PREFIX...: {}\n".format(data["data"]["prefix"])
-        bgpOut += " NAME.....: {}\n".format(data["data"]["name"])
-        bgpOut += " DESC.....: {}\n".format(data["data"]["description_short"])
-        bgpOut += " ADDRESS..: "+" ".join(data["data"]["owner_address"]) + "\n"
-        bgpOut += " ALLOCATED: {}\n".format(data["data"]["rir_allocation"]["date_allocated"])
+        bgpOut += f" PREFIX...: {data['data']['prefix']}\n"
+        bgpOut += f" NAME.....: {data['data']['name']}\n"
+        bgpOut += f" DESC.....: {data['data']['description_short']}\n"
+        bgpOut += f" ADDRESS..: {' '.join(data['data']['owner_address'])}\n" # Confirm this one
+        bgpOut += f" ALLOCATED: {data['data']['rir_allocation']['date_allocated']}\n"
         bgpOut += "\n[ ASNs ]\n\n"
         for i in data["data"]["asns"]:
-            bgpOut += " ASN......: AS{}\n".format(i["asn"])
-            bgpOut += " Name.....: {}\n".format(i["name"])
-            bgpOut += " Desc.....: {}\n".format(i["description"])
-            bgpOut += " Country..: {}\n".format(i["country_code"])
+            bgpOut += f" ASN......: AS{i['asn']}\n"
+            bgpOut += f" Name.....: {i['name']}\n"
+            bgpOut += f" Desc.....: {i['description']}\n"
+            bgpOut += f" Country..: {i['country_code']}\n"
             bgpOut += " Upstreams:\n"
             for u in i["prefix_upstreams"]:
-                bgpOut += "   AS{} | {} | {} | {}\n".format(u["asn"],u["name"],u["description"],u["country_code"])
+                bgpOut += f"   AS{u['asn']} | {u['name']} | {u['description']} | {u['country_code']}\n"
     return "<pre><code>"+bgpOut+"</code></pre>"
   except Exception as aiEx:
     await crashLog(event,aiEx)
     return f"<pre><code>Error: {aiEx}</code></pre>"
 
 async def getMACVendor(room, event, cmdArgs):
+  # Try a local lookup with ouisieee first, then do an API call if not found
   try:
     mac = cmdArgs[0]
-    url = 'https://api.macvendors.com/{}'.format(mac)
+    url = f"https://api.macvendors.com/{mac}"
     res = requests.get(url)
     data = res.text
     if len(data) > 0:
-      return "Vendor: " + data
+      return f"Vendor: {data}"
     else:
       return "No data!"
   except Exception as aiEx:
@@ -514,17 +473,15 @@ async def headerGrab(room, event, cmdArgs):
     r = requests.get(url, headers=headers, timeout=15, verify=False)
     h = r.headers
     headerOut = ""
-    headerOut += "URL: {}\n".format(url)
-    headerOut += " UA: {}\n".format(rUA)
+    headerOut += f"URL: {url}\n"
+    headerOut += f" UA: {rUA}\n"
     headerOut += "--------------------\n"
-    headerOut += " Status: {}\n".format(r.status_code)
-    #print(type(r.is_redirect))
+    headerOut += f" Status: {r.status_code}\n"
     if r.is_redirect:
         headerOut += " Redirect: True\n"
     for hK, hV in h.items():
-        headerOut += " {}: {}\n".format(hK,hV)
-    
-    headerOut += " Content-Length: {}".format(len(r.text))
+        headerOut += f" {hK}: {hV}\n"
+    headerOut += f" Content-Length: {len(r.text)}"
     return "<pre><code>"+headerOut+"</code></pre>"
 
   except Exception as aiEx:
@@ -537,35 +494,28 @@ async def resolver(host_name):
 
 async def resolveHost(room, event, cmdArgs):
   try:
-    host_name = cmdArgs[0]
-    host_ip = await resolver(host_name) 
-    return "<pre><code>"+host_ip+"</code></pre>"
+    host_ip = await resolver(cmdArgs[0])
+    return f"<pre><code>{host_ip}</code></pre>"
   except Exception as aiEx:
     await crashLog(event,aiEx)
-    return "<pre><code>Couldn't resolve IP!</code></pre>"
+    return f"<pre><code>Couldn't resolve IP!\n{aiEx}</code></pre>"
 
 async def gn(ip):
   gnapi = GreyNoise()
   noise = gnapi.ip(ip)
   gnOut = ""
   if 'seen' in noise:
-    gnOut += "IP: {}\n".format(ip)
-    gnOut += "Seen: {}\n".format(noise['seen'])
+    gnOut += f"IP: {ip}\n"
+    gnOut += f"Seen: {noise['seen']}\n"
     if 'classification' in noise:
       gnc = noise['classification']
-    else:
-      return gnOut
-    if gnc == "malicious":
-      gnOut += "Classification: {}\n".format(gnc)
-      gnOut += "Tags:\n"
-      for tag in noise['tags']:
-        gnOut += "- {}\n".format(tag)
-    else:
-      gnOut += "Classification: {}\n".format(gnc)
+      gnOut += f"Classification: {gnc}\n"
       if 'tags' in noise:
         gnOut += "Tags:\n"
         for tag in noise['tags']:
-          gnOut += "- {}\n".format(tag)
+          gnOut += f"- {tag}\n"
+    else:
+      return gnOut
   else:
     gnOut = "No results :("
   return gnOut
@@ -573,14 +523,13 @@ async def gn(ip):
 async def gnWrapper(room, event, cmdArgs):
   try:
     searchIP = cmdArgs[0]
-    ip = ""
     if await valid_ip(searchIP):
       ip = searchIP
     else:
       ip = await resolver(searchIP)
     gnR = await gn(ip)
     if gnR:
-      return "<pre><code>"+gnR+"</code></pre>"
+      return f"<pre><code>{gnR}</code></pre>"
   except Exception as aiEx:
     await crashLog(event,aiEx)
     return f"<pre><code>{aiEx}</code></pre>"
