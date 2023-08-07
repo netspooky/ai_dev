@@ -7,11 +7,11 @@ try:
 except ImportError:
     from helper import *
 
-def blackhat(room, event):
+def blackhat(room, event, cmdArgs):
     bh = await getLine("assets/blackhatquote.txt")
     return "{} {}".format(s, bh)
 
-def skid(room, event):
+def skid(room, event, cmdArgs):
     skidverb = await getLine("assets/skidverb.txt")
     s = event.sender
     return "{}, who are you calling a skid? Heh, do you even {}".format(s, skidverb)

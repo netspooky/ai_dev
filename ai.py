@@ -246,10 +246,11 @@ class Bot:
             if event.body[0] == self.cmdToken:
                 timeNow = self.getTime()
                 print(f"{timeNow}: {room.room_id} ({room.name}) {event}")
-                msg = event.body.split()
-                cmd = msg[0].split(self.cmdToken)[1]
+                cmdArgs = event.body.split()
+                cmd = cmdArgs[0].split(self.cmdToken)[1]
+                cmdArgs.pop(0)
                 if cmd in cmdDict.keys():
-                    botResponse = await cmdDict[cmd]["func"](room, event)
+                    botResponse = await cmdDict[cmd]["func"](room, event, cmdArgs)
                     if botResponse != 0:
                         await tBot.client.room_send(
                             room_id=room.room_id,

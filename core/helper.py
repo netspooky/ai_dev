@@ -183,7 +183,7 @@ async def readFile(file):
         output = ''.join(lines)
     return output
 
-### If you need logging, this needs to be redone haha
+### Don't use
 async def aiLog(event):
     return # This is now covered in the bot class
 #    print(event)

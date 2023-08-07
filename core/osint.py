@@ -7,10 +7,8 @@ except ImportError:
 import re
 
 #-> !cid <number>
-async def cidSearch(room, event):
-    await aiLog(event)
-    args = event.body.split()
-    initialNum    = args[1]
+async def cidSearch(room, event, cmdArgs):
+    initialNum    = cmdArgs[0]
     phonenumber   = await getDigits(initialNum)
 
     # This is an easier way of accessing this api which was used in Wish
@@ -49,12 +47,10 @@ async def cidSearch(room, event):
 # later expand to a strip function that detects what kind of link it is
 # uses verify_google function from helper.py
 # TODO write a wrapper, have this return false and then send message based on that?
-async def degoogle(room, event):
+async def degoogle(room, event, cmdArgs):
     try:
-        await aiLog(event)
-        args = event.body.split()
-        if len(args) >= 2:
-            url = args[1]
+        if len(cmdArgs) >= 1:
+            url = cmdArgs[0]
         else:
             text = 'usage: !dg <google search result url> to degoogle a link and extract just the target url!'
             return '<pre><code>' + text + '</code></pre>'
@@ -94,9 +90,8 @@ async def degoogle(room, event):
 
 # !gs <query>
 # search google for your query and return all cleaned results + descriptions
-async def degoogle_all(room, event):
+async def degoogle_all(room, event, cmdArgs):
     try:
-        await aiLog(event)
         args = event.body.split()
         if len(args) >= 2:
             query = args[1]
@@ -177,8 +172,7 @@ async def degoogle_all(room, event):
 
 
 # Get random user data
-async def fakeID(room, event):
-    await aiLog(event)
+async def fakeID(room, event, cmdArgs):
     url = 'http://randomuser.me/api/'
     res = requests.get(url)
     data = json.loads(res.text)
@@ -247,16 +241,14 @@ async def fakeID(room, event):
     output += '</code></pre>'
     return output
 
-async def vtSearch(room, event):
+async def vtSearch(room, event, cmdArgs):
     #SECRETS = await loadYML('secrets.yml')
     vtApiKey = SECRETS["keys"]["virus_total"]
     if len(vtApiKey) == 0:
         return "Please set up a Virus Total API key!"
     vtHeaders = {'x-apikey': vtApiKey}
-    await aiLog(event)
     try:
-      args     = event.body.split()
-      vtHash   = args[1]
+      vtHash   = cmdArgs[0]
       vtOut    = ""
       url      = 'https://www.virustotal.com/api/v3/files/{}'.format(vtHash)
       res      = requests.get(url, headers=vtHeaders)
