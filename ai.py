@@ -8,7 +8,7 @@ from core import *
 import datetime
  
 CONFIG_FILE = "credentials.json"
-COMMAND_TOKEN = "!"
+COMMAND_TOKEN = "~"
 INIT_TIME   = int(time.time())*1000 # Dumb time hack lol
 
 BANNER = """
@@ -54,11 +54,7 @@ BANNER = """
 """
 
 ### This is where all of the commands are registered
-cmdDict = { "brokencommand": {
-                "func": core.helper.getTime,
-                "help": "",
-                "usage": "",
-            },
+cmdDict = { 
             "8ball": {
                 "func": core.generic.ballCB,
                 "help": "Consult the great oracle. Ask a yes or no question. Returns an answer.",
@@ -128,11 +124,6 @@ cmdDict = { "brokencommand": {
                 "func": core.net.headerGrab,
                 "help": "Grab headers from a domain",
                 "usage": "head [domain]",
-            },
-            "help": {
-                "func": core.generic.helpCB,
-                "help": "This menu",
-                "usage": "help",
             },
             "host": {
                 "func": core.net.resolveHost,
@@ -228,6 +219,7 @@ class Bot:
         print(BANNER)
         print("Authenticating...")
         self.cmdToken = COMMAND_TOKEN
+        self.commands = cmds
         with open(CONFIG_FILE, "r") as f:
             config = json.load(f)
             self.client = AsyncClient(config['homeserver'])
@@ -239,29 +231,60 @@ class Bot:
         now = datetime.datetime.now()
         tstamp = now.strftime("%Y-%m-%d %H:%M:%S")
         return tstamp
+    
+    def printHelp(self, inCmd):
+        # Usage for this
+        # ?command -- Gives help on this command
+        # <COMMAND_TOKEN>help command -- Gives help on command
+        # <COMMAND_TOKEN>help -- Gives general help
+        # <COMMAND_TOKEN>h -- Gives general help
+        helpOut = ""
+        if inCmd in self.commands.keys():
+            if len(inCmd) > 0:
+                helpOut += f"<h3>{inCmd} Help</h3>"
+                helpOut += f"<b>Description:</b> {self.commands[inCmd]['help']}<br>"
+                helpOut += f"<b>Usage:</b> <code>{COMMAND_TOKEN}{self.commands[inCmd]['usage']}</code>"
+                return helpOut
+        else:
+            helpOut = "<table><thead><tr><th>Command</th><th>Description</th><th>Example</th></tr></thead><tbody>"
+            for command in self.commands.keys():
+                helpOut += f"<tr><td>{command}</td><td>{self.commands[command]['help']}</td><td><code>{self.commands[command]['usage']}</code></td></tr>"
+            helpOut += "</tbody></table>"
+        return helpOut
 
     async def msgListener(self, room, event):
         # Logging needs to happen here as well as filtering and args
+        botResponse = 0
         if event.server_timestamp > INIT_TIME:
-            if event.body[0] == self.cmdToken:
-                timeNow = self.getTime()
+            timeNow = self.getTime()
+            if event.body[0] == "?": # This handles a help command with the syntax `?command`
+                print(f"{timeNow}: {room.room_id} ({room.name}) {event}")
+                cmdArgs = event.body.split()
+                helpCmd = cmdArgs[0].split("?")[1]
+                botResponse = self.printHelp(helpCmd)
+            elif event.body[0] == self.cmdToken:
                 print(f"{timeNow}: {room.room_id} ({room.name}) {event}")
                 cmdArgs = event.body.split()
                 cmd = cmdArgs[0].split(self.cmdToken)[1]
                 cmdArgs.pop(0)
-                if cmd in cmdDict.keys():
+                if cmd == "help":
+                    helpCmd = ""
+                    if len(cmdArgs) > 0:
+                        helpCmd = cmdArgs[0]
+                    botResponse = self.printHelp(helpCmd)
+                elif cmd in cmdDict.keys():
                     botResponse = await cmdDict[cmd]["func"](room, event, cmdArgs)
-                    if botResponse != 0:
-                        await tBot.client.room_send(
-                            room_id=room.room_id,
-                            message_type="m.room.message",
-                            content={
-                                "msgtype": "m.text",
-                                "format": "org.matrix.custom.html",
-                                "body": botResponse,
-                                "formatted_body": botResponse
-                            }
-                        )
+        if botResponse != 0:
+            await self.client.room_send(
+                room_id=room.room_id,
+                message_type="m.room.message",
+                content={
+                    "msgtype": "m.text",
+                    "format": "org.matrix.custom.html",
+                    "body": botResponse,
+                    "formatted_body": botResponse
+                }
+            )
 
 tBot = Bot(cmds=cmdDict) # Initialize the bot with a dict of callbacks and usage info
 

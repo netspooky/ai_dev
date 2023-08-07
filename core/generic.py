@@ -10,10 +10,6 @@ import json
 import re 
 from urllib.request import urlopen
 
-async def helpCB(room, event, cmdArgs):
-    helpFile = await readFile('assets/helpfile.txt')
-    return helpFile
-
 async def testCB(room, event, cmdArgs):
     return "Test Success!"
 
