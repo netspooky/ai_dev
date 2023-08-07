@@ -8,7 +8,7 @@ from core import *
 import datetime
  
 CONFIG_FILE = "credentials.json"
-COMMAND_TOKEN = "~"
+COMMAND_TOKEN = "!"
 INIT_TIME   = int(time.time())*1000 # Dumb time hack lol
 
 BANNER = """
