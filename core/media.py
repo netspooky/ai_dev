@@ -78,3 +78,4 @@ async def ytSearch(room, event, cmdArgs):
             return "https://www.youtube.com/watch?v=KwDrfMCsIwg"
     except Exception as aiEx:
         await crashLog(event,aiEx)
+        return f"<pre><code>Oops!\n{aiEx}</code></pre>"
