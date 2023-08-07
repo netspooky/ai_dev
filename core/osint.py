@@ -9,39 +9,25 @@ import re
 #-> !cid <number>
 async def cidSearch(room, event, cmdArgs):
     initialNum    = cmdArgs[0]
-    phonenumber   = await getDigits(initialNum)
-
-    # This is an easier way of accessing this api which was used in Wish
-    #SECRETS = await loadYML('secrets.yml')
+    phoneNumber   = await getDigits(initialNum)
     api_key = SECRETS["keys"]["twilio"]
     if len(api_key) == 0:
         return "Please set up a Twilio API key!"
-    url = 'https://'+api_key+'@lookups.twilio.com/v1/PhoneNumbers/{}?Type=carrier'.format(phonenumber)
-
+    url = f"https://{api_key}@lookups.twilio.com/v1/PhoneNumbers/{phoneNumber}?Type=carrier"
     res = requests.get(url)
-
     data = json.loads(res.text)
-    # print(data) # For debug 
+    out = ""
     try:
         if data['carrier']:
-            carrier_name = data['carrier']['name']
-            carrier_type = data['carrier']['type']
-            caller_name  = data['caller_name']
-            country_code = data['country_code'] 
-            phone_number = data['phone_number']
-            text = '''
-            Results for: {}\n
-            
-            Carrier: {}
-            Type: {}
-            Caller name: {}
-            Country Code: {}
-            '''.format(phone_number, carrier_name, carrier_type, caller_name, country_code)
-            return '<pre><code>' + text + '</code></pre>'
+            out += f"Results for: {data['phone_number']}\n\n"
+            out += f"Carrier: {data['carrier']['name']}\n"
+            out += f"Type: {data['carrier']['type']}\n"
+            out += f"Caller name: {data['caller_name']}\n"
+            out += f"Country Code: {data['country_code']}\n"
+            return f"<pre><code>{out}</code></pre>"
     except Exception as aiEx:
-        text = 'Something broke :('
         await crashLog(event,aiEx)
-        return '<pre><code>' + text + '</code></pre>'
+        return f"<pre><code>Something broke :(\n{aiEx}</code></pre>"
 
 #-> !dg <url>
 # later expand to a strip function that detects what kind of link it is
@@ -169,75 +155,38 @@ async def degoogle_all(room, event, cmdArgs):
         await crashLog(event,aiEx)
         return '<pre><code>' + text + '</code></pre>'
 
-
-
 # Get random user data
 async def fakeID(room, event, cmdArgs):
-    url = 'http://randomuser.me/api/'
-    res = requests.get(url)
-    data = json.loads(res.text)
-    #print(data)
+    res = requests.get('http://randomuser.me/api/')
+    dataj = json.loads(res.text)
+    data  = dataj['results'][0]
     output = ""
-    
-    ### Basic info
     output += "<h3>"
-    #nameTitle = data['results'][0]['name']['title']
-    nameFirst = data['results'][0]['name']['first']
-    nameLast  = data['results'][0]['name']['last']
-    nameFull  = nameFirst + " " + nameLast
-    output    += nameFull + "</h3>"
-    fakeDOB   = data['results'][0]['dob']['date']
-    fakeAge   = data['results'][0]['dob']['age']
-
-    ### Location Info 
-    locStreet = data['results'][0]['location']['street']
-    locCity   = data['results'][0]['location']['city']
-    locState  = data['results'][0]['location']['state']
-    locPostal = data['results'][0]['location']['postcode']
-    locLat    = data['results'][0]['location']['coordinates']['latitude']
-    locLon    = data['results'][0]['location']['coordinates']['longitude']
-    locTZ     = data['results'][0]['location']['timezone']['offset'] # GMT + 
-    locDesc   = data['results'][0]['location']['timezone']['description'] 
-    locFullTZ = "GMT "+locTZ+" "+locDesc
-    output += str(locStreet["number"]) + " " + locStreet["name"] + " " + locCity + " " + locState + str(locPostal) +'<br>'
+    output += f"{data['name']['first']} {data['name']['last']}</h3>"
+    loc  = data['location']
+    locc = loc['coordinates']
+    loct = loc['timezone']
+    output += f"{loc['street']['number']} {loc['street']['name']}, {loc['city']}, {loc['state']} {loc['postcode']}<br>"
     output += '<pre><code>--- Info ---\n'
-    output += 'Age........: ' + str(fakeAge) + '\n'
-    output += 'DOB........: ' + fakeDOB + '\n'
-    output += 'Timezone...: ' + locFullTZ + '\n'
-    output += 'Geo........: ' + locLat + "," + locLon +'\n'
-    output += '\n'
-
-    # contact
-    output += '--- Contact ---\n'
-    conPhone  = data['results'][0]['phone']
-    conCell   = data['results'][0]['cell']
-    conEmail  = data['results'][0]['email']
-    output += 'Phone......: ' + conPhone + '\n'
-    output += 'Cell.......: ' + conCell  + '\n'
-    output += 'Email......: ' + conEmail + '\n'
-    output += '\n'
-
-    # Userdata
+    output += f"Age........: {data['dob']['age']}\n"
+    output += f"DOB........: {data['dob']['date']}\n"
+    output += f"Timezone...: GMT {loct['offset']} {loct['description'] }\n"
+    output += f"Geo........: {locc['latitude']},{locc['longitude']}\n\n"
+    output += '--- Contact Information ---\n'
+    output += f"Phone......: {data['phone']}\n"
+    output += f"Cell.......: {data['cell']}\n"
+    output += f"Email......: {data['email']}\n\n"
     output += '--- User Data ---\n'
-    usrUUID   = data['results'][0]['login']['uuid']
-    usrUSER   = data['results'][0]['login']['username']
-    usrPASS   = data['results'][0]['login']['password']
-    usrSALT   = data['results'][0]['login']['salt']
-    usrMD5    = data['results'][0]['login']['md5']
-    usrSHA1   = data['results'][0]['login']['sha1']
-    usrSHA256 = data['results'][0]['login']['sha256']
-    usrRgDate = data['results'][0]['registered']['date']
-    usrAccAge = data['results'][0]['registered']['age']
-    usrPic    = data['results'][0]['picture']['large']
-    output += 'Username...: ' + usrUSER + '\n'
-    output += 'Password...: ' + usrPASS + '\n'
-    output += 'Salt.......: ' + usrSALT + '\n'
-    output += 'MD5........: ' + usrMD5 + '\n'
-    output += 'SHA1.......: ' + usrSHA1 + '\n'
-    output += 'SHA256.....: ' + usrSHA256 + '\n'
-    output += 'Registered.: ' + usrRgDate + '\n'
-    output += 'Account Age: ' + str(usrAccAge) + ' years\n'
-    output += 'Profile Pic: ' + usrPic + '\n'
+    output += f"Username...: {data['login']['username']}\n"
+    output += f"Password...: {data['login']['password']}\n"
+    output += f"Salt.......: {data['login']['salt']}\n"
+    output += f"MD5........: {data['login']['md5']}\n"
+    output += f"SHA1.......: {data['login']['sha1']}\n"
+    output += f"SHA256.....: {data['login']['sha256']}\n"
+    output += f"UUID.......: {data['login']['uuid']}\n"
+    output += f"Registered.: {data['registered']['date']}\n"
+    output += f"Account Age: {data['registered']['age']} years\n" 
+    output += f"Profile Pic: {data['picture']['large']}\n"
     output += '</code></pre>'
     return output
 
@@ -253,43 +202,35 @@ async def vtSearch(room, event, cmdArgs):
       url      = 'https://www.virustotal.com/api/v3/files/{}'.format(vtHash)
       res      = requests.get(url, headers=vtHeaders)
       data     = json.loads(res.text)
-      vtd      = data["data"]["attributes"]
-      vtID     = data["data"]["id"]
-      vtMagic  = vtd["magic"]
-      vtMD5    = vtd["md5"]
-      vtSHA1   = vtd["sha1"]
-      vtSHA256 = vtd["sha256"]
-      vtTags   = vtd["tags"]
-      vtTyped  = vtd["type_description"]
-      aRes = data["data"]["attributes"]["last_analysis_results"]
+      vtd      = data['data']['attributes']
+      aRes = data['data']['attributes']['last_analysis_results']
       vtOut += "--- File Meta ---\n"
-      vtOut += " VTID....: {}\n".format(vtID)
-      vtOut += " Magic...: {}\n".format(vtMagic)
-      vtOut += " MD5.....: {}\n".format(vtMD5)
-      vtOut += " SHA1....: {}\n".format(vtSHA1)
-      vtOut += " SHA256..: {}\n".format(vtSHA256)
-      vtOut += " Type....: {}\n".format(vtTyped)
-      vtOut += " Tags....: {}\n".format(vtTags)
+      vtOut += f" VTID....: {data['data']['id']}\n"
+      vtOut += f" Magic...: {vtd['magic']}\n"
+      vtOut += f" MD5.....: {vtd['md5']}\n"
+      vtOut += f" SHA1....: {vtd['sha1']}\n"
+      vtOut += f" SHA256..: {vtd['sha256']}\n"
+      vtOut += f" Type....: {vtd['type_description']}\n"
+      vtOut += f" Tags....: {vtd['tags']}\n"
       if "exiftool" in vtd:
-        vtExif   = vtd["exiftool"]
         vtOut += "\n--- Exif Data ---\n"
+        vtExif   = vtd['exiftool']
         for eK, eV in vtExif.items():
-            vtOut += " {}: {}\n".format(eK,eV)
+            vtOut += f" {eK}: {eV}\n"
         vtOut += "\n--- Detections ---\n"
       for i in aRes:
-          eRes = aRes[i]["result"]
-          eName = aRes[i]["engine_name"]
+          eRes  = aRes[i]['result']
+          eName = aRes[i]['engine_name']
           if eRes != None:
-              vtOut += " {}: {}\n".format(eName,eRes)
+              vtOut += f" {eName}: {eRes}\n"
           else:
               continue
-      stats = data["data"]["attributes"]["last_analysis_stats"]
+      stats = data['data']['attributes']['last_analysis_stats']
       vtOut += "\n--- Stats ---\n"
       for s, v in stats.items():
-          vtOut += " {}: {}\n".format(s,v)
-      vtOut += "\nLINK: {}".format(data["data"]["links"]["self"])
-      return '<pre><code>' + vtOut + '</code></pre>'
+          vtOut += f" {s}: {v}\n"
+      vtOut += f"\nLINK: {data['data']['links']['self']}"
+      return f"<pre><code>{vtOut}</code></pre>"
     except Exception as aiEx:
-      text = 'No Results or API Key Exhausted!'
       await crashLog(event,aiEx)
-      return '<pre><code>' + text + '</code></pre>'
+      return f"<pre><code>No Results or API Key Exhausted!\n{aiEx}</code></pre>"
