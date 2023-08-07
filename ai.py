@@ -185,6 +185,11 @@ cmdDict = {
                 "help": "Look up a term on Urban Dictionary",
                 "usage": "ud [search string]",
             },
+            "uss": {
+                "func": core.net.urlScanSearch,
+                "help": "Search for a domain on urlscan",
+                "usage": "uss [domain]",
+            },
             "vt": {
                 "func": core.osint.vtSearch,
                 "help": "Search an MD5, SHA1 or SHA256 hash on VirusTotal",

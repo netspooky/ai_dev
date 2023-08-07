@@ -22,6 +22,69 @@ try:
 except ImportError:
     from helper import *
 
+async def urlScanSearch(room, event, cmdArgs):
+    domain    = cmdArgs[0]
+    url = f"https://urlscan.io/api/v1/search/?q=domain:{domain}"
+    try:
+        req = requests.get(url)
+        data = json.loads(req.text)
+        out = ""
+        results = data["results"]
+        resnum = 0
+        out += f"{len(results)} results!\n"
+        for r in results:
+            resnum = resnum + 1
+            out += f"Result {resnum} <pre><code>"
+            out += f"URL: {r['task']['url']}\n"
+            out += f"Domain: {r['task']['domain']}\n"
+            out += f"Time: {r['task']['time']}\n"
+            out += f"UUID: {r['task']['uuid']}\n"
+            out += "Stats --------\n"
+            out += f"Unique IPs: {r['stats']['uniqIPs']}\n"
+            out += f"Unique Countries: {r['stats']['uniqCountries']}\n"
+            out += f"Data Length: {r['stats']['dataLength']}\n"
+            out += f"Encoded Data Length: {r['stats']['encodedDataLength']}\n"
+            out += f"Requests: {r['stats']['requests']}\n"
+            out += "Page --------\n"
+            if 'title' in r['page']:
+                out += f"Title: {r['page']['title']}\n"
+            if 'url' in r['page']:
+                out += f"URL: {r['page']['url']}\n"
+            if 'status' in r['page']:
+                out += f"Status: {r['page']['status']}\n"
+            if 'ip' in r['page']:
+                out += f"IP: {r['page']['ip']}\n"
+            if 'ptr' in r['page']:
+                out += f"ptr: {r['page']['ptr']}\n"
+            if 'server' in r['page']:
+                out += f"Server Type: {r['page']['server']}\n"
+            if 'redirected' in r['page']:
+                out += f"Redirect: {r['page']['redirected']}\n"
+            if 'mimeType' in r['page']:
+                out += f"MIME Type: {r['page']['mimeType']}\n"
+            if 'country' in r['page']:
+                out += f"Country: {r['page']['country']}\n"
+            if 'tlsValidFrom' in r['page']:
+                out += f"TLS Valid From: {r['page']['tlsValidFrom']}\n"
+            if 'tlsValidDays' in r['page']:
+                out += f"TLS Valid Days: {r['page']['tlsValidDays']}\n"
+            if 'tlsAgeDays' in r['page']:
+                out += f"TLS Age Days: {r['page']['tlsAgeDays']}\n"
+            if 'tlsIssuer' in r['page']:
+                out += f"TLS Issuer: {r['page']['tlsIssuer']}\n"
+            if 'asn' in r['page']:
+                out += f"ASN: {r['page']['asn']}\n"
+            if 'asnname' in r['page']:
+                out += f"ASN Name: {r['page']['asnname']}\n"
+            out += "Links --------\n"
+            out += f"URL Scan Link: {r['result']}\n"
+            out += f"Page Screenshot: {r['screenshot']}\n"
+            out += "</code></pre>"
+        return out
+    except Exception as aiEx:
+      await crashLog(event,aiEx)
+      return f"<pre><code>Error: {aiEx}</code></pre>"
+
 async def wpRandom(room, event, cmdArgs):
     article = requests.get("https://en.wikipedia.org/wiki/Special:Random").url
     return article
