@@ -19,38 +19,35 @@ async def inspire(room, event, cmdArgs):
 
 # This is down and needs to be reimplemented, can use a text file
 async def lameInsult(room, event, cmdArgs):
-    url = "https://evilinsult.com/generate_insult.php?lang=en&type=json"
-    try:    
-        res = requests.get(url)
-        data = json.loads(res.text)
-        if 'insult' in data:
-            return "<pre><code>{}</code></pre>".format(data['insult'])
-    except Exception as aiEx:
-        await crashLog(event,aiEx)
+    return "Haven't you heard enough insults?"
 
  #-> !ud <search string>
 async def udSearch(room, event, cmdArgs):
     try:
         searchString = ' '.join(cmdArgs)
-        url = 'http://api.urbandictionary.com/v0/define?term={}'.format(searchString)
+        url = f"http://api.urbandictionary.com/v0/define?term={searchString}"
         res = requests.get(url)
         data = json.loads(res.text)
-        keyList = ['definition','example','sound_urls']
-
         if not data['list']:
             face = await getFace('nay')
-            return '<h2>{}</h2>'.format(face)
+            return f"<h2>{face}</h2>"
         else:
             udDef = data['list'][0]['definition']
-            udExm = data['list'][0]['example']
-            udSound = "" # Fix this lol
+            udExample = "None"
+            udSound = "None"
+            if 'example' in data['list'][0]:
+                udExample = data['list'][0]['example']
             if 'sound_urls' in data['list'][0]:
-                udSnd = data['list'][0]['sound_urls'] # async def keep an eye on this
-                udSndUrls = '\n'.join(udSnd)
+                udSndUrls = '\n'.join(data['list'][0]['sound_urls'])
                 udSound = f"{fmt1}Sound URLs:\n{udSndUrls}{fmt2}"
-            return '<h3>Definition: "'+searchString+'"</h3>'+udDef+'\n'+udSound
+            out = ""
+            out += f"<h3>Definition: '{searchString}'</h3> {udDef}<br>"
+            out += f"<h4>Example</h4> {udExample}<br>"
+            out += f"<h4>Sound URLs</h4> {udSound}"
+            return out
     except Exception as aiEx:
         await crashLog(event,aiEx)
+        return f"<pre><code>Oops!\n{aiEx}</code></pre>"
 
 #-> !yt <search string>
 async def ytSearch(room, event, cmdArgs):
@@ -61,8 +58,7 @@ async def ytSearch(room, event, cmdArgs):
         searchString = ''
         for arg in cmdArgs:
             searchString += arg + '+'
-            
-        url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=5&q={}&key={}'.format(searchString, api_key)
+        url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=5&q={searchString}&key={api_key}"
         res = requests.get(url)
         data = json.loads(res.text)
         
@@ -77,7 +73,7 @@ async def ytSearch(room, event, cmdArgs):
                 title_and_desc = title
             else: #separate title and desc with a hyphen
                 title_and_desc = ("<h3>%s</h3><i>%s</i>" % (title, desc))
-            return '{}<br>https://www.youtube.com/watch?v={}'.format(title_and_desc,data['items'][0]['id']['videoId'])
+            return f"{title_and_desc}<br>https://www.youtube.com/watch?v={data['items'][0]['id']['videoId']}"
         else:
             return "https://www.youtube.com/watch?v=KwDrfMCsIwg"
     except Exception as aiEx:
