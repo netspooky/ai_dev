@@ -23,7 +23,9 @@ except ImportError:
     from helper import *
 
 async def urlScanScan(room, event, cmdArgs):
-    # Does an unlisted scan
+    """
+    !urlscan - Perform an unlisted scan using urlscan
+    """
     urlToScan = cmdArgs[0]
     urlScanAPIKey = SECRETS["keys"]["urlscan"]
     if len(urlScanAPIKey) == 0:
@@ -78,6 +80,9 @@ async def urlScanScan(room, event, cmdArgs):
         return scanOut
 
 async def urlScanSearch(room, event, cmdArgs):
+    """
+    !uss - Search for a domain via urlscan
+    """
     domain    = cmdArgs[0]
     url = f"https://urlscan.io/api/v1/search/?q=domain:{domain}"
     try:
@@ -141,10 +146,16 @@ async def urlScanSearch(room, event, cmdArgs):
       return f"<pre><code>Error: {aiEx}</code></pre>"
 
 async def wpRandom(room, event, cmdArgs):
+    """
+    !w - Get a random Wikipedia page
+    """
     article = requests.get("https://en.wikipedia.org/wiki/Special:Random").url
     return article
 
 async def secTrails(room, event, cmdArgs):
+    """
+    !dns - DNS Lookup with SecurityTrails API
+    """
     domain     = cmdArgs[0]
     api_key    = SECRETS["keys"]["sectrails"]
     output_dir = SECRETS["config"]["output_dir"]
@@ -197,6 +208,9 @@ async def secTrails(room, event, cmdArgs):
       return "Something broke! (Probably the API key is exhausted)"
 
 async def ipinfo(room, event, cmdArgs):
+    """
+    !ip - ipinfo IP Lookup
+    """
     ip  = cmdArgs[0]
     if len(ip) > 7:
         url = f"http://ipinfo.io/{ip}"
@@ -219,8 +233,11 @@ async def ipinfo(room, event, cmdArgs):
         ipOut = 'Not a valid IP!'
     return f"<h3>IP: {ip}</h3> {ipOut}"
 
-#-> !bssid XX:XX:XX:XX:XX:XX
 async def bssid_lookup(room, event, cmdArgs):
+    """
+    !bssid - BSSID Lookup
+    !bssid XX:XX:XX:XX:XX:XX
+    """
     if len(cmdArgs) == 0  or cmdArgs[0] == '-h':
         return "usage: !bssid <XX:XX:XX:XX:XX:XX>"
     else:
@@ -269,6 +286,9 @@ async def bssid_lookup(room, event, cmdArgs):
             return "Not a valid BSSID!"
 
 async def dnsdumpster2(room, event, cmdArgs):
+    """
+    !dnsd2 - DNS Dumpster - 2023 Edition
+    """
     try:
       domain = cmdArgs[0]
 
@@ -303,6 +323,9 @@ async def dnsdumpster2(room, event, cmdArgs):
     return out
 
 async def dnsdumpster(room, event, cmdArgs):
+    """
+    !dnsd2 - DNS Dumpster
+    """
     try:
       domain = cmdArgs[0]
 
@@ -340,6 +363,9 @@ async def dnsdumpster(room, event, cmdArgs):
     #    await crashLog(event,aiEx)
 
 async def bgpViewASN(room, event, cmdArgs):
+  """
+  !asn - Search an asn on BGPview
+  """
   rlSleep = 0.5 # Ratelimit...
   try:
     asn = cmdArgs[0]
@@ -410,6 +436,9 @@ async def bgpViewASN(room, event, cmdArgs):
     return f"<pre><code>Error: {aiEx}</code></pre>"
 
 async def bgpViewPrefix(room, event, cmdArgs):
+  """
+  !prefix - Search a prefix on BGPview
+  """
   prefix = cmdArgs[0]
   try:
     bgpOut = ""
@@ -438,7 +467,10 @@ async def bgpViewPrefix(room, event, cmdArgs):
     return f"<pre><code>Error: {aiEx}</code></pre>"
 
 async def getMACVendor(room, event, cmdArgs):
-  # Try a local lookup with ouisieee first, then do an API call if not found
+  """
+  !mac - MAC Vendor Lookup Command
+  """
+  # TODO - Try a local lookup with ouisieee first, then do an API call if not found
   try:
     mac = cmdArgs[0]
     url = f"https://api.macvendors.com/{mac}"
@@ -453,23 +485,27 @@ async def getMACVendor(room, event, cmdArgs):
     return f"<pre><code>Error: {aiEx}</code></pre>"
 
 async def shodanGetIP(banner):
+    # Todo - Merge this into the shodanSearch function
     if 'ipv6' in banner:
         return banner['ipv6']
     return banner['ip_str']
 
 async def shodanSearch(room, event, cmdArgs):
-  # Show the host information in a user-friendly way and try to include
-  # as much relevant information as possible.
+  """
+  !shodan - Shodan Search command
+  Show the host information in a user-friendly way and try to include
+  as much relevant information as possible.
+  """
   try:
     search_term = cmdArgs[0]
     SHODAN_API_KEY = SECRETS["keys"]["shodan"]
     if len(SHODAN_API_KEY) == 0:
-      return "Please set up a Shodan API key!"
+        return "Please set up a Shodan API key!"
     api = shodan.Shodan(SHODAN_API_KEY)
     try:
-      host = api.host(search_term)
+        host = api.host(search_term)
     except:
-      return "<pre><code>No results!</code></pre>"
+        return "<pre><code>No results!</code></pre>"
     output  = """"""
     output += await shodanGetIP(host) + '\n'
     if len(host['hostnames']) > 0:
@@ -581,73 +617,88 @@ async def shodanSearch(room, event, cmdArgs):
     return f"<pre><code>Error: {aiEx}</code></pre>"
 
 async def headerGrab(room, event, cmdArgs):
-  try:
-    url = cmdArgs[0]
-    if url[0:4] != "http":
-      url = "http://" + url
-    rUA = await getLine("assets/useragents.txt") # Random User Agent
-    rUA = rUA.split("\n")[0]
-    headers = { 'User-Agent': rUA }
-    r = requests.get(url, headers=headers, timeout=15, verify=False)
-    h = r.headers
-    headerOut = ""
-    headerOut += f"URL: {url}\n"
-    headerOut += f" UA: {rUA}\n"
-    headerOut += "--------------------\n"
-    headerOut += f" Status: {r.status_code}\n"
-    if r.is_redirect:
-        headerOut += " Redirect: True\n"
-    for hK, hV in h.items():
-        headerOut += f" {hK}: {hV}\n"
-    headerOut += f" Content-Length: {len(r.text)}"
-    return "<pre><code>"+headerOut+"</code></pre>"
+    """
+    !head - Header grabber
+    """
+    try:
+        url = cmdArgs[0]
+        if url[0:4] != "http":
+            url = "http://" + url
+        rUA = await getLine("assets/useragents.txt") # Random User Agent
+        rUA = rUA.split("\n")[0]
+        headers = { 'User-Agent': rUA }
+        r = requests.get(url, headers=headers, timeout=15, verify=False)
+        h = r.headers
+        headerOut = ""
+        headerOut += f"URL: {url}\n"
+        headerOut += f" UA: {rUA}\n"
+        headerOut += "--------------------\n"
+        headerOut += f" Status: {r.status_code}\n"
+        if r.is_redirect:
+            headerOut += " Redirect: True\n"
+        for hK, hV in h.items():
+            headerOut += f" {hK}: {hV}\n"
+        headerOut += f" Content-Length: {len(r.text)}"
+        return "<pre><code>"+headerOut+"</code></pre>"
 
-  except Exception as aiEx:
-    await crashLog(event,aiEx)
-    return f"<pre><code>Error: {aiEx}</code></pre>"
+    except Exception as aiEx:
+        await crashLog(event,aiEx)
+        return f"<pre><code>Error: {aiEx}</code></pre>"
 
 async def resolver(host_name):
-  host_ip = socket.gethostbyname(host_name) 
-  return host_ip
+    """
+    Helper that resolves IP addresses
+    """
+    host_ip = socket.gethostbyname(host_name) 
+    return host_ip
 
 async def resolveHost(room, event, cmdArgs):
-  try:
-    host_ip = await resolver(cmdArgs[0])
-    return f"<pre><code>{host_ip}</code></pre>"
-  except Exception as aiEx:
-    await crashLog(event,aiEx)
-    return f"<pre><code>Couldn't resolve IP!\n{aiEx}</code></pre>"
+    """
+    !host - Host Lookup Command
+    """
+    try:
+        host_ip = await resolver(cmdArgs[0])
+        return f"<pre><code>{host_ip}</code></pre>"
+    except Exception as aiEx:
+        await crashLog(event,aiEx)
+        return f"<pre><code>Couldn't resolve IP!\n{aiEx}</code></pre>"
 
 async def gn(ip):
-  gnapi = GreyNoise()
-  noise = gnapi.ip(ip)
-  gnOut = ""
-  if 'seen' in noise:
-    gnOut += f"IP: {ip}\n"
-    gnOut += f"Seen: {noise['seen']}\n"
-    if 'classification' in noise:
-      gnc = noise['classification']
-      gnOut += f"Classification: {gnc}\n"
-      if 'tags' in noise:
-        gnOut += "Tags:\n"
-        for tag in noise['tags']:
-          gnOut += f"- {tag}\n"
+    """
+    Helper for the gn command
+    """
+    gnapi = GreyNoise()
+    noise = gnapi.ip(ip)
+    gnOut = ""
+    if 'seen' in noise:
+        gnOut += f"IP: {ip}\n"
+        gnOut += f"Seen: {noise['seen']}\n"
+        if 'classification' in noise:
+            gnc = noise['classification']
+            gnOut += f"Classification: {gnc}\n"
+            if 'tags' in noise:
+                gnOut += "Tags:\n"
+                for tag in noise['tags']:
+                    gnOut += f"- {tag}\n"
+        else:
+            return gnOut
     else:
-      return gnOut
-  else:
-    gnOut = "No results :("
-  return gnOut
+        gnOut = "No results :("
+    return gnOut
 
 async def gnWrapper(room, event, cmdArgs):
-  try:
-    searchIP = cmdArgs[0]
-    if await valid_ip(searchIP):
-      ip = searchIP
-    else:
-      ip = await resolver(searchIP)
-    gnR = await gn(ip)
-    if gnR:
-      return f"<pre><code>{gnR}</code></pre>"
-  except Exception as aiEx:
-    await crashLog(event,aiEx)
-    return f"<pre><code>{aiEx}</code></pre>"
+    """
+    !gn - Greynoise IP Lookup Command
+    """
+    try:
+        searchIP = cmdArgs[0]
+        if await valid_ip(searchIP):
+            ip = searchIP
+        else:
+            ip = await resolver(searchIP)
+        gnR = await gn(ip)
+        if gnR:
+            return f"<pre><code>{gnR}</code></pre>"
+    except Exception as aiEx:
+        await crashLog(event,aiEx)
+        return f"<pre><code>{aiEx}</code></pre>"
