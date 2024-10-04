@@ -6,10 +6,22 @@ import os
 import core
 from core import *
 import datetime
+import yaml
  
 CONFIG_FILE = "credentials.json"
 COMMAND_TOKEN = "!" # change this for debug
 INIT_TIME   = int(time.time())*1000 # Dumb time hack lol
+
+# Put this in a better spot lol, did this to support the space commands
+def loadYML(infile):
+  with open(infile,'r') as stream:
+    try:
+      data = yaml.safe_load(stream)
+    except yaml.YAMLError as exc:
+      print(exc)
+  return data
+
+SECRETS = loadYML('./secrets.yml')
 
 BANNER = """
 ((((((/(((((((/((((/((((((((((((((((((((((((((/,,,,,,,,,,,,,,,,,,,*//,,,/,,,,,,
@@ -282,6 +294,22 @@ class Bot:
                     if len(cmdArgs) > 0:
                         helpCmd = cmdArgs[0]
                     botResponse = self.printHelp(helpCmd)
+                if cmd == "rooms":
+                    space_rooms = await self.client.space_get_hierarchy(
+                        space_id=SECRETS["secrets"]["space_id"]
+                    )
+                    room_list = "<ul>"
+                    for rr in space_rooms.rooms:
+                        room_list += "<li>"
+                        room_list += f"<a href='https://matrix.to/#/{rr['canonical_alias']}'>{rr['name']}</a> "
+                        if 'topic' in rr:
+                            room_list += f"<i>{rr['topic']}</i> "
+                        room_list += f"[👥 {rr['num_joined_members']}] "
+                        room_list += "</li>\n" # End the list
+                    room_list += "</ul>"
+                    botResponse = room_list
+
+#                    print(fishrr.rooms[0]['children_state'])
                 elif cmd in cmdDict.keys():
                     botResponse = await cmdDict[cmd]["func"](room, event, cmdArgs)
         if botResponse != 0:
