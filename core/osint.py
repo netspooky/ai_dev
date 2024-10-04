@@ -155,7 +155,7 @@ async def degoogle_all(room, event, cmdArgs):
         await crashLog(event,aiEx)
         return '<pre><code>' + text + '</code></pre>'
 
-# Get random user data
+# !fakeid - Get random user data
 async def fakeID(room, event, cmdArgs):
     res = requests.get('http://randomuser.me/api/')
     dataj = json.loads(res.text)
@@ -190,8 +190,8 @@ async def fakeID(room, event, cmdArgs):
     output += '</code></pre>'
     return output
 
+# !vt <hash>
 async def vtSearch(room, event, cmdArgs):
-    #SECRETS = await loadYML('secrets.yml')
     vtApiKey = SECRETS["keys"]["virus_total"]
     if len(vtApiKey) == 0:
         return "Please set up a Virus Total API key!"
@@ -214,7 +214,7 @@ async def vtSearch(room, event, cmdArgs):
       vtOut += f" Tags....: {vtd['tags']}\n"
       if "exiftool" in vtd:
         vtOut += "\n--- Exif Data ---\n"
-        vtExif   = vtd['exiftool']
+        vtExif = vtd['exiftool']
         for eK, eV in vtExif.items():
             vtOut += f" {eK}: {eV}\n"
         vtOut += "\n--- Detections ---\n"
