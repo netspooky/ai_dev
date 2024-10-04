@@ -4,3 +4,8 @@ greynoise
 python-magic
 cryptography
 matrix-nio
+unicorn
+keystone-engine
+capstone
+pyyaml
+pillow

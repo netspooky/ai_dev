@@ -8,7 +8,7 @@ from core import *
 import datetime
  
 CONFIG_FILE = "credentials.json"
-COMMAND_TOKEN = "!"
+COMMAND_TOKEN = "!" # change this for debug
 INIT_TIME   = int(time.time())*1000 # Dumb time hack lol
 
 BANNER = """
@@ -256,10 +256,10 @@ class Bot:
                 helpOut += f"<b>Usage:</b> <code>{COMMAND_TOKEN}{self.commands[inCmd]['usage']}</code>"
                 return helpOut
         else:
-            helpOut = "<table><thead><tr><th>Command</th><th>Description</th><th>Example</th></tr></thead><tbody>"
+            helpOut = "<ul>"
             for command in self.commands.keys():
-                helpOut += f"<tr><td>{command}</td><td>{self.commands[command]['help']}</td><td><code>{self.commands[command]['usage']}</code></td></tr>"
-            helpOut += "</tbody></table>"
+                helpOut += f"<li><b>{command}</b> - <i>{self.commands[command]['help']}</i> - ex: <code>{COMMAND_TOKEN}{self.commands[command]['usage']}</code>\n"
+            helpOut += "</ul>"
         return helpOut
 
     async def msgListener(self, room, event):
