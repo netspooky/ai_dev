@@ -1,3 +1,15 @@
 # Add new modules here
-__all__ = [ 'asm','bgpview','dnsd','exploit','generic','helper', 'media', 'net', 'osint', 'urlscan', 'virustotal' ]
+__all__ = [ 'asm',
+           'bgpview',
+           'dnsd',
+           'exploit',
+           'fakeid',
+           'generic',
+           'helper',
+           'media', 
+           'net', 
+           'twilioapi',
+           'urlscan', 
+           'virustotal' 
+           ]
 

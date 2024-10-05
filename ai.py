@@ -1,4 +1,5 @@
 import asyncio
+import core.twilioapi
 from nio import (Api, AsyncClient, MatrixRoom, RoomMessageText)
 import time
 import json
@@ -9,7 +10,7 @@ import yaml
  
 CONFIG_FILE = "credentials.json"
 COMMAND_TOKEN = "?" # change this for debug
-INIT_TIME   = int(time.time())*1000 # Dumb time hack lol
+INIT_TIME   = int(time.time())*1000 # Compare init to past events to prevent duplicate messages
 
 # Put this in a better spot lol, did this to support the space commands
 def loadYML(infile):
@@ -92,7 +93,7 @@ cmdDict = {
                 "usage": "cc [coin]",
             },
             "cid": {
-                "func": core.osint.cidSearch,
+                "func": core.twilioapi.TwilioCmd.cid_search,
                 "help": "Look up number on Twilio API",
                 "usage": "cid [number]",
             },
@@ -117,7 +118,7 @@ cmdDict = {
                 "usage": "dnsd2 [domain]",
             },
             "fakeid": {
-                "func": core.osint.fakeID,
+                "func": core.fakeid.fakeID,
                 "help": "Returns a whole fake identity",
                 "usage": "fakeid",
             },
@@ -231,22 +232,22 @@ cmdDict = {
                 "help": "Look up a Youtube video",
                 "usage": "yt [search string]",
             },
-            #"!ddg": core.osint.degoogle, # - I have no idea about this error: name 'google_tlds' is not defined
-            #"!dgs": core.osint.degoogle_all, # - Can just implement the degoogle library
+            #"!ddg": core.degoogleai.degoogle, # - I have no idea about this error: name 'google_tlds' is not defined
+            #"!dgs": core.degoogleai.degoogle_all, # - Can just implement the degoogle library
 }
 
 class Bot:
     def __init__(self, cmds=cmdDict):
-        print(BANNER)
-        print("Authenticating...")
         self.cmdToken = COMMAND_TOKEN
         self.commands = cmds
+        print("[+] Authenticating to homeserver...")
         with open(CONFIG_FILE, "r") as f:
             config = json.load(f)
             self.client = AsyncClient(config['homeserver'])
             self.client.access_token = config['access_token']
             self.client.user_id = config['user_id']
             self.client.device_id = config['device_id']
+        print(BANNER)
 
     def getTime(self):
         now = datetime.datetime.now()
@@ -325,7 +326,8 @@ tBot = Bot(cmds=cmdDict) # Initialize the bot with a dict of callbacks and usage
 
 async def main():
     tBot.client.add_event_callback(tBot.msgListener, RoomMessageText)
-    print("Starting up at {}".format(INIT_TIME))
+    start_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"Starting up at {start_time}")
     await tBot.client.sync_forever(timeout=30000)
 
 asyncio.get_event_loop().run_until_complete(main())

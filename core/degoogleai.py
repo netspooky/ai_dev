@@ -1,33 +1,9 @@
-### OSINT Commands
-# Anything OSINT related
+# This module is unused because it was rolled into another library outside of ai
 try:
     from core.helper import *
 except ImportError:
     from helper import *
 import re
-
-#-> !cid <number>
-async def cidSearch(room, event, cmdArgs):
-    initialNum    = cmdArgs[0]
-    phoneNumber   = await getDigits(initialNum)
-    api_key = SECRETS["keys"]["twilio"]
-    if len(api_key) == 0:
-        return "Please set up a Twilio API key!"
-    url = f"https://{api_key}@lookups.twilio.com/v1/PhoneNumbers/{phoneNumber}?Type=carrier"
-    res = requests.get(url)
-    data = json.loads(res.text)
-    out = ""
-    try:
-        if data['carrier']:
-            out += f"Results for: {data['phone_number']}\n\n"
-            out += f"Carrier: {data['carrier']['name']}\n"
-            out += f"Type: {data['carrier']['type']}\n"
-            out += f"Caller name: {data['caller_name']}\n"
-            out += f"Country Code: {data['country_code']}\n"
-            return f"<pre><code>{out}</code></pre>"
-    except Exception as aiEx:
-        await crashLog(event,aiEx)
-        return f"<pre><code>Something broke :(\n{aiEx}</code></pre>"
 
 #-> !dg <url>
 # later expand to a strip function that detects what kind of link it is
@@ -155,82 +131,3 @@ async def degoogle_all(room, event, cmdArgs):
         await crashLog(event,aiEx)
         return '<pre><code>' + text + '</code></pre>'
 
-# !fakeid - Get random user data
-async def fakeID(room, event, cmdArgs):
-    res = requests.get('http://randomuser.me/api/')
-    dataj = json.loads(res.text)
-    data  = dataj['results'][0]
-    output = ""
-    output += "<h3>"
-    output += f"{data['name']['first']} {data['name']['last']}</h3>"
-    loc  = data['location']
-    locc = loc['coordinates']
-    loct = loc['timezone']
-    output += f"{loc['street']['number']} {loc['street']['name']}, {loc['city']}, {loc['state']} {loc['postcode']}<br>"
-    output += '<pre><code>--- Info ---\n'
-    output += f"Age........: {data['dob']['age']}\n"
-    output += f"DOB........: {data['dob']['date']}\n"
-    output += f"Timezone...: GMT {loct['offset']} {loct['description'] }\n"
-    output += f"Geo........: {locc['latitude']},{locc['longitude']}\n\n"
-    output += '--- Contact Information ---\n'
-    output += f"Phone......: {data['phone']}\n"
-    output += f"Cell.......: {data['cell']}\n"
-    output += f"Email......: {data['email']}\n\n"
-    output += '--- User Data ---\n'
-    output += f"Username...: {data['login']['username']}\n"
-    output += f"Password...: {data['login']['password']}\n"
-    output += f"Salt.......: {data['login']['salt']}\n"
-    output += f"MD5........: {data['login']['md5']}\n"
-    output += f"SHA1.......: {data['login']['sha1']}\n"
-    output += f"SHA256.....: {data['login']['sha256']}\n"
-    output += f"UUID.......: {data['login']['uuid']}\n"
-    output += f"Registered.: {data['registered']['date']}\n"
-    output += f"Account Age: {data['registered']['age']} years\n" 
-    output += f"Profile Pic: {data['picture']['large']}\n"
-    output += '</code></pre>'
-    return output
-
-# !vt <hash>
-async def vtSearch(room, event, cmdArgs):
-    vtApiKey = SECRETS["keys"]["virus_total"]
-    if len(vtApiKey) == 0:
-        return "Please set up a Virus Total API key!"
-    vtHeaders = {'x-apikey': vtApiKey}
-    try:
-      vtHash   = cmdArgs[0]
-      vtOut    = ""
-      url      = 'https://www.virustotal.com/api/v3/files/{}'.format(vtHash)
-      res      = requests.get(url, headers=vtHeaders)
-      data     = json.loads(res.text)
-      vtd      = data['data']['attributes']
-      aRes = data['data']['attributes']['last_analysis_results']
-      vtOut += "--- File Meta ---\n"
-      vtOut += f" VTID....: {data['data']['id']}\n"
-      vtOut += f" Magic...: {vtd['magic']}\n"
-      vtOut += f" MD5.....: {vtd['md5']}\n"
-      vtOut += f" SHA1....: {vtd['sha1']}\n"
-      vtOut += f" SHA256..: {vtd['sha256']}\n"
-      vtOut += f" Type....: {vtd['type_description']}\n"
-      vtOut += f" Tags....: {vtd['tags']}\n"
-      if "exiftool" in vtd:
-        vtOut += "\n--- Exif Data ---\n"
-        vtExif = vtd['exiftool']
-        for eK, eV in vtExif.items():
-            vtOut += f" {eK}: {eV}\n"
-        vtOut += "\n--- Detections ---\n"
-      for i in aRes:
-          eRes  = aRes[i]['result']
-          eName = aRes[i]['engine_name']
-          if eRes != None:
-              vtOut += f" {eName}: {eRes}\n"
-          else:
-              continue
-      stats = data['data']['attributes']['last_analysis_stats']
-      vtOut += "\n--- Stats ---\n"
-      for s, v in stats.items():
-          vtOut += f" {s}: {v}\n"
-      vtOut += f"\nLINK: {data['data']['links']['self']}"
-      return f"<pre><code>{vtOut}</code></pre>"
-    except Exception as aiEx:
-      await crashLog(event,aiEx)
-      return f"<pre><code>No Results or API Key Exhausted!\n{aiEx}</code></pre>"
