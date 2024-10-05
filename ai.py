@@ -9,7 +9,7 @@ import datetime
 import yaml
  
 CONFIG_FILE = "credentials.json"
-COMMAND_TOKEN = "!" # change this for debug
+COMMAND_TOKEN = "?" # change this for debug
 INIT_TIME   = int(time.time())*1000 # Dumb time hack lol
 
 # Put this in a better spot lol, did this to support the space commands
@@ -68,12 +68,12 @@ BANNER = """
 ### This is where all of the commands are registered
 cmdDict = { 
             "8ball": {
-                "func": core.generic.ballCB,
+                "func": core.generic.aiGeneric.ballCB,
                 "help": "Consult the great oracle. Ask a yes or no question. Returns an answer.",
                 "usage": "8ball [question]",
             },
             "arch": {
-                "func": core.generic.archCB,
+                "func": core.generic.aiGeneric.archCB,
                 "help": "Get a guide on installing Arch Linux.",
                 "usage": "arch",
             },
@@ -88,7 +88,7 @@ cmdDict = {
                 "usage": "bssid [XX:XX:XX:XX:XX:XX]",
             },
             "cc": {
-                "func": core.generic.cryptoCB,
+                "func": core.generic.aiGeneric.cryptoCB,
                 "help": "Get USD crypto price for a given coin.",
                 "usage": "cc [coin]",
             },
@@ -158,7 +158,7 @@ cmdDict = {
                 "usage": "mac [mac address]",
             },
             "os": {
-                "func": core.generic.obliqueCB,
+                "func": core.generic.aiGeneric.obliqueCB,
                 "help": "Get an oblique strategy",
                 "usage": "os",
             },
@@ -178,17 +178,17 @@ cmdDict = {
                 "usage": "shodan [IP]",
             },
             "skrt": {
-                "func": core.generic.skrtCB,
+                "func": core.generic.aiGeneric.skrtCB,
                 "help": "Ping me!",
                 "usage": "skrt",
             },
             "stressed": {
-                "func": core.generic.stressedCB,
+                "func": core.generic.aiGeneric.stressedCB,
                 "help": "Get a tip on what to do if you are stressed.",
                 "usage": "stressed",
             },
             "test": {
-                "func": core.generic.testCB,
+                "func": core.generic.aiGeneric.testCB,
                 "help": "Do a test",
                 "usage": "test",
             },
@@ -273,7 +273,20 @@ class Bot:
                 helpOut += f"<li><b>{command}</b> - <i>{self.commands[command]['help']}</i> - ex: <code>{COMMAND_TOKEN}{self.commands[command]['usage']}</code>\n"
             helpOut += "</ul>"
         return helpOut
-
+    async def getSpaceRooms(self):
+        space_rooms = await self.client.space_get_hierarchy(
+            space_id=SECRETS["secrets"]["space_id"]
+        )
+        room_list = "List of Space Rooms\n<ul>"
+        for rr in space_rooms.rooms:
+            room_list += "<li>"
+            room_list += f"<a href='https://matrix.to/#/{rr['canonical_alias']}'>{rr['name']}</a> "
+            if 'topic' in rr:
+                room_list += f"<i>{rr['topic']}</i> "
+            room_list += f"[👥 {rr['num_joined_members']}] "
+            room_list += "</li>\n" # End the list
+        room_list += "</ul>"
+        return room_list
     async def msgListener(self, room, event):
         # Logging needs to happen here as well as filtering and args
         botResponse = 0
@@ -295,21 +308,7 @@ class Bot:
                         helpCmd = cmdArgs[0]
                     botResponse = self.printHelp(helpCmd)
                 if cmd == "rooms":
-                    space_rooms = await self.client.space_get_hierarchy(
-                        space_id=SECRETS["secrets"]["space_id"]
-                    )
-                    room_list = "<ul>"
-                    for rr in space_rooms.rooms:
-                        room_list += "<li>"
-                        room_list += f"<a href='https://matrix.to/#/{rr['canonical_alias']}'>{rr['name']}</a> "
-                        if 'topic' in rr:
-                            room_list += f"<i>{rr['topic']}</i> "
-                        room_list += f"[👥 {rr['num_joined_members']}] "
-                        room_list += "</li>\n" # End the list
-                    room_list += "</ul>"
-                    botResponse = room_list
-
-#                    print(fishrr.rooms[0]['children_state'])
+                    botResponse = await self.getSpaceRooms()
                 elif cmd in cmdDict.keys():
                     botResponse = await cmdDict[cmd]["func"](room, event, cmdArgs)
         if botResponse != 0:

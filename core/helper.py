@@ -71,6 +71,8 @@ class helperBot:
             self.client.access_token = config['access_token']
             self.client.user_id = config['user_id']
             self.client.device_id = config['device_id']
+    async def testHi(self, room, event, cmdArgs):
+        return "Hey from HelperBot"
 
 ### The client object
 hBot = helperBot()
