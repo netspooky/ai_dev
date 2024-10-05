@@ -143,7 +143,7 @@ cmdDict = {
                 "usage": "host [ip]",
             },
             "inspire": {
-                "func": core.media.inspire,
+                "func": core.inspirobot.inspire,
                 "help": "Get an image from inspirobot.me",
                 "usage": "",
             },
@@ -173,7 +173,7 @@ cmdDict = {
                 "usage": "reversi [IP] [PORT]",
             },
             "shodan": {
-                "func": core.net.shodanSearch,
+                "func": core.shodanapi.ShodanCmd.shodan_search,
                 "help": "Search shodan for an IP",
                 "usage": "shodan [IP]",
             },
@@ -193,7 +193,7 @@ cmdDict = {
                 "usage": "test",
             },
             "ud": {
-                "func": core.media.udSearch,
+                "func": core.urbandictionary.udSearch,
                 "help": "Look up a term on Urban Dictionary",
                 "usage": "ud [search string]",
             },
