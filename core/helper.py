@@ -140,7 +140,7 @@ async def crashLog(event,eLog):
 
 ### This is a general command wrapper for only getting digits from a given string
 async def getDigits(someText):
-    cleaned = re.sub("\D", "", someText)
+    cleaned = re.sub(r"\D", "", someText)
     return cleaned
 
 ## This returns a face based on mood, basically a boolean
@@ -195,11 +195,11 @@ async def make_google_link(query):
 
 ### verify that a link is a valid google search url - needed for osint/degoogler function
 async def verify_google(url):
-    find_match = re.match('^(https?://)?(www\.)?(google\.[a-z]{2,3}(\.[a-z]{2})?)/url', url)
+    find_match = re.match(r'^(https?://)?(www\.)?(google\.[a-z]{2,3}(\.[a-z]{2})?)/url', url)
     if find_match:
         for match in find_match.groups():
             if match and match[0:6] == 'google':
-                domain_segments = re.split('google\.', match)
+                domain_segments = re.split(r'google\.', match)
                 tld = domain_segments[1]
                 if str(len(tld)) in google_tlds and tld in google_tlds[str(len(tld))]:
                     return True
