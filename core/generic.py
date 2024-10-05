@@ -7,7 +7,6 @@ except ImportError:
     from helper import *
 
 import json
-import re 
 from urllib.request import urlopen
 
 class aiGenericCmds:

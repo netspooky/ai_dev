@@ -2,7 +2,6 @@ import asyncio
 from nio import (Api, AsyncClient, MatrixRoom, RoomMessageText)
 import time
 import json
-import os
 import core
 from core import *
 import datetime
@@ -78,7 +77,7 @@ cmdDict = {
                 "usage": "arch",
             },
             "bgp": {
-                "func": core.net.bgpViewASN,
+                "func": core.bgpview.bgpViewASN,
                 "help": "Get info on your favorite ASNs!",
                 "usage": "bgp [ASXXX]",
             },
@@ -108,12 +107,12 @@ cmdDict = {
                 "usage": "dns [domain]",
             },
             "dnsd": {
-                "func": core.net.dnsdumpster,
+                "func": core.dnsd.dnsdumpster,
                 "help": "Get DNS info + a network map for a given domain",
                 "usage": "dnsd [domain]",
             },
             "dnsd2": {
-                "func": core.net.dnsdumpster2,
+                "func": core.dnsd.dnsdumpster2,
                 "help": "Get DNS info + a network map for a given domain, 2023 edition",
                 "usage": "dnsd2 [domain]",
             },
@@ -163,7 +162,7 @@ cmdDict = {
                 "usage": "os",
             },
             "prefix": {
-                "func": core.net.bgpViewPrefix,
+                "func": core.bgpview.bgpViewPrefix,
                 "help": "Look up an IP Prefix / CIDR Block",
                 "usage": "prefix X.X.X.X/X",
             },
@@ -198,17 +197,17 @@ cmdDict = {
                 "usage": "ud [search string]",
             },
             "urlscan": {
-                "func": core.net.urlScanScan,
+                "func": core.urlscan.UrlScanCmd.us_scan,
                 "help": "Submit a url to urlscan.io (unlisted)",
                 "usage": "urlscan [url]",
             },
             "uss": {
-                "func": core.net.urlScanSearch,
+                "func": core.urlscan.UrlScanCmd.us_search,
                 "help": "Search for a domain on urlscan.io",
                 "usage": "uss [domain]",
             },
             "vt": {
-                "func": core.osint.vtSearch,
+                "func": core.virustotal.VirusTotalCmd.vt_search,
                 "help": "Search an MD5, SHA1 or SHA256 hash on VirusTotal",
                 "usage": "vt [hash]",
             },
