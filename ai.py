@@ -292,14 +292,13 @@ class Bot:
         botResponse = 0
         if event.server_timestamp > INIT_TIME:
             timeNow = self.getTime()
+            cmdArgs = event.body.split()
             if event.body[0:2] == "!?": # This handles a help command with the syntax `?command`
                 print(f"{timeNow}: {room.room_id} ({room.name}) {event}")
-                cmdArgs = event.body.split()
                 helpCmd = cmdArgs[0].split("!?")[1]
                 botResponse = self.printHelp(helpCmd)
             elif event.body[0] == self.cmdToken:
                 print(f"{timeNow}: {room.room_id} ({room.name}) {event}")
-                cmdArgs = event.body.split()
                 cmd = cmdArgs[0].split(self.cmdToken)[1]
                 cmdArgs.pop(0)
                 if cmd == "help":
