@@ -46,7 +46,23 @@ cPURP = "\033[38;5;147m"
 cGRY  = "\033[38;5;239m"
 cLGRY = "\033[38;5;242m"
 e     = "\033[0m"
+# Use these to wrap the send_html output!
+fmt1 = "<pre><code>"
+fmt2 = "</code></pre>"
 
+#######################
+
+def loadYML(infile):
+  with open(infile,'r') as stream:
+    try:
+      data = yaml.safe_load(stream)
+    except yaml.YAMLError as exc:
+      print(exc)
+  return data
+
+SECRETS = loadYML('./secrets.yml')
+
+#######################
 class helperBot:
     def __init__(self):
         with open(CONFIG_FILE, "r") as f:
@@ -59,99 +75,8 @@ class helperBot:
 ### The client object
 hBot = helperBot()
 
-def loadYML(infile):
-  with open(infile,'r') as stream:
-    try:
-      data = yaml.safe_load(stream)
-    except yaml.YAMLError as exc:
-      print(exc)
-  return data
-
-SECRETS = loadYML('./secrets.yml')
-
-# Use these to wrap the send_html output!
-fmt1 = "<pre><code>"
-fmt2 = "</code></pre>"
-
-### Returns current timestamp
-async def getTime():
-    now = datetime.datetime.now()
-    tstamp = now.strftime("%Y-%m-%d %H:%M:%S")
-    return tstamp
-
-### verify that a link is a valid google search url - needed for osint/degoogler function
-async def verify_google(url):
-    find_match = re.match('^(https?://)?(www\.)?(google\.[a-z]{2,3}(\.[a-z]{2})?)/url', url)
-    if find_match:
-        for match in find_match.groups():
-            if match and match[0:6] == 'google':
-                domain_segments = re.split('google\.', match)
-                tld = domain_segments[1]
-                if str(len(tld)) in google_tlds and tld in google_tlds[str(len(tld))]:
-                    return True
-    else:
-        return False
-
-# TODO: add a bot command to just return a google link based on specified query rather than actually running query
-# return a valid google search url for a query
-async def make_google_link(query):
-    normalized_query = re.sub(r' |%20', '+', query)
-    normalized_query = re.sub(r'\"', '%22', normalized_query)
-    url = "https://google.com/search?q=%s" % normalized_query
-    return url
-
-### This is a general command wrapper for only getting digits from a given string
-async def getDigits(someText):
-    cleaned = re.sub("\D", "", someText)
-    return cleaned
-
-### Check if an IP is valid
-async def valid_ip(address):
-    try: 
-        socket.inet_aton(address)
-        return True
-    except:
-        return False
-
-### Get reaction
-# yay and nay are the categories
-
-nayList = ["(￣。￣)","(￣ー￣)","(︶︹︺)","(◕ ︵ ◕)","(´◉◞౪◟◉)"]
-yayList = ["\\(◕ ◡ ◕\\)","(◕‿◕✿)","(≧ω≦)","(´・ω・｀)",]
-
-async def getFace(mood):
-    if mood == "yay":
-        mood = random.choice(yayList)
-    if mood == "nay":
-        mood = random.choice(nayList)
-    return mood
-
-### Handler for all commands that return a random line from a file
-async def getLine(file):
-    with open(file,"r") as f:
-        lines = f.readlines()
-        line  = random.choice(lines)
-    return line
-
-async def readFile(file):
-    with open(file,"r") as f:
-        lines = f.readlines()
-        output = ''.join(lines)
-    return output
-
-### Don't use
-async def aiLog(event):
-    return # This is now covered in the bot class
-#    print(event)
-
-### NEEDS WORK ###
-async def crashLog(event,eLog):
-    tstamp = await getTime()
-    print("Crashed at {}: {}".format(tstamp, eLog))
-
 ### modified send_file.py example code, should be cleaned up ###
 async def send_image(room, image):
-
     client = hBot.client
 
     mime_type = magic.from_file(image, mime=True)  # e.g. "image/jpeg"
@@ -198,3 +123,85 @@ async def send_image(room, image):
         print("Image was sent successfully")
     except Exception as e:
         print(f"Image send of file {image} failed: {e}")
+
+##############################
+## Getting Things
+
+### Get reaction
+# yay and nay are the categories
+
+
+### NEEDS WORK ###
+async def crashLog(event,eLog):
+    tstamp = await getTime()
+    print("Crashed at {}: {}".format(tstamp, eLog))
+
+### This is a general command wrapper for only getting digits from a given string
+async def getDigits(someText):
+    cleaned = re.sub("\D", "", someText)
+    return cleaned
+
+## This returns a face based on mood, basically a boolean
+async def getFace(mood):
+    yayList = ["\\(◕ ◡ ◕\\)","(◕‿◕✿)","(≧ω≦)","(´・ω・｀)",]
+    nayList = ["(￣。￣)","(￣ー￣)","(︶︹︺)","(◕ ︵ ◕)","(´◉◞౪◟◉)"]
+    if mood == "yay":
+        mood = random.choice(yayList)
+    if mood == "nay":
+        mood = random.choice(nayList)
+    return mood
+
+### Handler for all commands that return a random line from a file
+async def getLine(file):
+    with open(file,"r") as f:
+        lines = f.readlines()
+        line  = random.choice(lines)
+    return line
+
+### Returns current timestamp
+async def getTime():
+    now = datetime.datetime.now()
+    tstamp = now.strftime("%Y-%m-%d %H:%M:%S")
+    return tstamp
+
+# not used anywhere
+async def readFile(file):
+    with open(file,"r") as f:
+        lines = f.readlines()
+        output = ''.join(lines)
+    return output
+
+### Check if an IP is valid
+async def valid_ip(address):
+    try: 
+        socket.inet_aton(address)
+        return True
+    except:
+        return False
+
+###############################
+### Google related helpers
+
+# TODO: add a bot command to just return a google link based on specified query rather than actually running query
+# return a valid google search url for a query
+async def make_google_link(query):
+    normalized_query = re.sub(r' |%20', '+', query)
+    normalized_query = re.sub(r'\"', '%22', normalized_query)
+    url = "https://google.com/search?q=%s" % normalized_query
+    return url
+
+
+### verify that a link is a valid google search url - needed for osint/degoogler function
+async def verify_google(url):
+    find_match = re.match('^(https?://)?(www\.)?(google\.[a-z]{2,3}(\.[a-z]{2})?)/url', url)
+    if find_match:
+        for match in find_match.groups():
+            if match and match[0:6] == 'google':
+                domain_segments = re.split('google\.', match)
+                tld = domain_segments[1]
+                if str(len(tld)) in google_tlds and tld in google_tlds[str(len(tld))]:
+                    return True
+    else:
+        return False
+
+

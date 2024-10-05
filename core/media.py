@@ -17,10 +17,6 @@ async def inspire(room, event, cmdArgs):
     await send_image(room, filename)
     return 0
 
-# This is down and needs to be reimplemented, can use a text file
-async def lameInsult(room, event, cmdArgs):
-    return "Haven't you heard enough insults?"
-
  #-> !ud <search string>
 async def udSearch(room, event, cmdArgs):
     try:

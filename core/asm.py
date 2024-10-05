@@ -56,7 +56,6 @@ def ucEmuX64(X86_CODE64):
         return f"Unicorn Error: {e}"
 
 async def x64Handler(room, event, cmdArgs):
-    await aiLog(event)
     output = "To use, type !x64 emu, then a new line, three backticks and a new line, your code, a new line, then three more backticks. Each line of code can be separated by a new line, or a semicolon."
     x64Task = ""
     args = event.body.split()
