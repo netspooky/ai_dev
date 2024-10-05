@@ -15,22 +15,25 @@ class TwilioAPI:
             print("[+] Twilio: API Key Loaded!")
     #-> !cid <number>
     async def cid_search(self, room, event, cmdArgs):
-        initialNum    = cmdArgs[0]
-        phoneNumber   = await getDigits(initialNum)
-        url = f"https://{self.api_key}@lookups.twilio.com/v1/PhoneNumbers/{phoneNumber}?Type=carrier"
-        res = requests.get(url)
-        data = json.loads(res.text)
-        out = ""
-        try:
-            if data['carrier']:
-                out += f"Results for: {data['phone_number']}\n\n"
-                out += f"Carrier: {data['carrier']['name']}\n"
-                out += f"Type: {data['carrier']['type']}\n"
-                out += f"Caller name: {data['caller_name']}\n"
-                out += f"Country Code: {data['country_code']}\n"
-                return f"<pre><code>{out}</code></pre>"
-        except Exception as aiEx:
-            await crashLog(event,aiEx)
-            return f"<pre><code>Something broke :(\n{aiEx}</code></pre>"
+        if self.api_key:
+            initialNum    = cmdArgs[0]
+            phoneNumber   = await getDigits(initialNum)
+            url = f"https://{self.api_key}@lookups.twilio.com/v1/PhoneNumbers/{phoneNumber}?Type=carrier"
+            res = requests.get(url)
+            data = json.loads(res.text)
+            out = ""
+            try:
+                if data['carrier']:
+                    out += f"Results for: {data['phone_number']}\n\n"
+                    out += f"Carrier: {data['carrier']['name']}\n"
+                    out += f"Type: {data['carrier']['type']}\n"
+                    out += f"Caller name: {data['caller_name']}\n"
+                    out += f"Country Code: {data['country_code']}\n"
+                    return f"<pre><code>{out}</code></pre>"
+            except Exception as aiEx:
+                await crashLog(event,aiEx)
+                return f"<pre><code>Something broke :(\n{aiEx}</code></pre>"
+        else:
+            return "Please set up an API key to use this command."
 
 TwilioCmd = TwilioAPI()

@@ -44,34 +44,3 @@ async def udSearch(room, event, cmdArgs):
     except Exception as aiEx:
         await crashLog(event,aiEx)
         return f"<pre><code>Oops!\n{aiEx}</code></pre>"
-
-#-> !yt <search string>
-async def ytSearch(room, event, cmdArgs):
-    api_key = SECRETS["keys"]["youtube_api"]
-    if len(api_key) == 0:
-        return "Please set up a Youtube API key!"
-    try:
-        searchString = ''
-        for arg in cmdArgs:
-            searchString += arg + '+'
-        url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=5&q={searchString}&key={api_key}"
-        res = requests.get(url)
-        data = json.loads(res.text)
-        
-        if data['pageInfo']['totalResults'] > 0:
-            title = data['items'][0]['snippet']['title']
-            desc = data['items'][0]['snippet']['description']
-            title_and_desc = ""
-            #truncate
-            if len(desc) > 100:
-               desc = ("%s..." % desc[:96])
-            if not desc: #no hyphen if no description
-                title_and_desc = title
-            else: #separate title and desc with a hyphen
-                title_and_desc = ("<h3>%s</h3><i>%s</i>" % (title, desc))
-            return f"{title_and_desc}<br>https://www.youtube.com/watch?v={data['items'][0]['id']['videoId']}"
-        else:
-            return "https://www.youtube.com/watch?v=KwDrfMCsIwg"
-    except Exception as aiEx:
-        await crashLog(event,aiEx)
-        return f"<pre><code>Oops!\n{aiEx}</code></pre>"

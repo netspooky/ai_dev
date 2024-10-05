@@ -228,7 +228,7 @@ cmdDict = {
                 "usage": "xss",
             },
             "yt": {
-                "func": core.media.ytSearch,
+                "func": core.youtubeapi.YoutubeCmd.yt_search,
                 "help": "Look up a Youtube video",
                 "usage": "yt [search string]",
             },

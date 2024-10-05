@@ -10,6 +10,7 @@ __all__ = [ 'asm',
            'net', 
            'twilioapi',
            'urlscan', 
-           'virustotal' 
+           'virustotal',
+           'youtubeapi'
            ]
 
